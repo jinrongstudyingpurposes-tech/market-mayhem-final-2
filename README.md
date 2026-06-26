@@ -1,21 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Market Mayhem - Universal Companion Tracker</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --accent-color: #3b82f6;
-            --success-color: #22c55e;
-            --danger-color: #ef4444;
-            --warning-color: #eab308;
-            --border-color: #334155;
-            --goal-met-bg: #064e3b; 
-        }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         

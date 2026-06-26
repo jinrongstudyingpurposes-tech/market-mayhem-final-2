@@ -84,6 +84,19 @@
             background-color: #1e293b !important;
         }
 
+        /* Mobile Sticky Freeze First Column Rules Extensions */
+        .sticky-col {
+            position: sticky !important;
+            left: 0 !important;
+            background-color: #0f172a !important;
+            z-index: 10 !important;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.4);
+        }
+        th.sticky-col {
+            background-color: #1e293b !important;
+            z-index: 15 !important;
+        }
+
         .table-responsive-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -207,7 +220,7 @@
                     <table class="overview-table">
                         <thead>
                             <tr>
-                                <th>Instance ID</th>
+                                <th class="sticky-col">Instance ID</th>
                                 <th>Asset ID</th>
                                 <th>Asset Name</th>
                                 <th>Risk Tier</th>
@@ -287,7 +300,7 @@
             <table class="overview-table">
                 <thead>
                     <tr>
-                        <th>Asset ID</th>
+                        <th class="sticky-col">Asset ID</th>
                         <th>Asset Name</th>
                         <th>Risk Tier</th>
                         <th>Asset Sector</th>
@@ -309,7 +322,7 @@
             <table class="overview-table">
                 <thead>
                     <tr>
-                        <th>Instance ID</th>
+                        <th class="sticky-col">Instance ID</th>
                         <th>Asset ID</th>
                         <th>Asset Name</th>
                         <th>Risk Tier</th>
@@ -373,13 +386,6 @@
 </div>
 
 <script>
-    const firebaseConfig = {
-        databaseURL: "https://market-mayhem-tracker-default-rtdb.asia-southeast1.firebasedatabase.app/"
-    };
-    
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-    const rtdb = firebase.database();
-
     const PROFILE_DB = {
         "Z1": { id: "Z1", name: "The Risky Rizzler (Risk-Taker)", desc: "Goal: Total Portfolio Assets Value >= $1,100 AND simultaneously hold at least 4 High-Risk (🔴) assets." },
         "Z2": { id: "Z2", name: "The Safe Skibidi (Conservative)", desc: "Goal: Total Portfolio Assets Value >= $800, collection of at least 5 assets with ZERO High-Risk (🔴) assets." },
@@ -437,7 +443,6 @@
         "S14": { title: "Energy Sector Collapse", rules: { "E5": 10, "E6": 10, "E9": 35, "E11": -25, "F1": 45, "B4": -30, "F3": -25 }, desc: "Lockdowns freeze travel. Oil hits negative values, breaking old fossil high-yield energy bonds while software structures stay safe." }
     };
 
-    // Fully rewritten to match user specifications exactly
     const ACTION_DB_INFO = {
         "A1":  "A1: Researching — Good investors study the market, read corporate profiles, and evaluate macroeconomic trends before making decisions rather than guessing. \nEffect: Secretly peek at the top 2 cards of the Market Scenario deck, then place them back on top in any order you choose.",
         "A2":  "A2: Dollar-Cost Averaging — Investing fixed amounts regularly lowers your average purchase cost over time and removes the stress of trying to time the market perfectly. \nEffect: Place this card next to your player profile. Gain an additional +$50 cash from the bank at the end of each round for the next 3 rounds.",
@@ -496,7 +501,6 @@
         renderPortfolioTable();
     }
 
-    // Sessions are now automatically synchronized and maintained by username inside the shared room space
     function savePlayerSession() {
         if (lobbyRoomCode && playerUsername) {
             rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/portfolio`).set(ownedAssetInstances);
@@ -524,7 +528,6 @@
             activeModifiers: { badAdvice: false, overconfidence: false, greed: false, marketRumourSector: "", textPayload: "" }
         });
 
-        // Pull backup data snapshot if page reloads
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/portfolio`).once('value', (snapshot) => {
             if (snapshot.exists()) {
                 ownedAssetInstances = snapshot.val() || [];
@@ -582,6 +585,7 @@
 
     function updateTargetDropdown(playersList) {
         let select = document.getElementById("target-player-select");
+        if(!select) return;
         select.innerHTML = "";
         let count = 0;
         for (let pName in playersList) {
@@ -684,7 +688,7 @@
 
             tbody.innerHTML += `
                 <tr>
-                    <td><small style="font-family:monospace; color:#94a3b8;">#${inst.instanceId}</small></td>
+                    <td class="sticky-col"><small style="font-family:monospace; color:#94a3b8;">#${inst.instanceId}</small></td>
                     <td><strong>${inst.cardId}</strong></td>
                     <td>${inst.name} ${badgeTags}</td>
                     <td><span class="risk-badge risk-${inst.risk}">Risk ${inst.risk}</span></td>
@@ -708,7 +712,7 @@
             let currentMarketCostPrice = globalMarketPrices[code] || template.cost; 
             tbody.innerHTML += `
                 <tr>
-                    <td><strong>${code}</strong></td>
+                    <td class="sticky-col"><strong>${code}</strong></td>
                     <td>${template.name}</td>
                     <td><span class="risk-badge risk-${template.risk}">Risk ${template.risk}</span></td>
                     <td>${template.sector}</td>
@@ -727,6 +731,9 @@
         document.getElementById("confirm-asset-details").innerText = `[${cardId}] ${template.name} (${template.sector} Sector)`;
         document.getElementById("confirm-price-readout").innerText = `$${currentMarketPrice}`;
         document.getElementById("confirm-price-readout").style.color = "var(--warning-color)";
+        
+        // Correctly set copy text parameters dynamically for buy channel
+        document.getElementById("confirm-multi-btn").innerText = "Confirm & Buy Another";
         document.getElementById("confirm-cancel-btn").setAttribute("onclick", "openBuyMarketScreen()");
         showScreen("view-confirm-transaction");
     }
@@ -739,7 +746,7 @@
         ownedAssetInstances.forEach(inst => {
             tbody.innerHTML += `
                 <tr>
-                    <td><small style="font-family:monospace; color:#94a3b8;">#${inst.instanceId}</small></td>
+                    <td class="sticky-col"><small style="font-family:monospace; color:#94a3b8;">#${inst.instanceId}</small></td>
                     <td><strong>${inst.cardId}</strong></td>
                     <td>${inst.name}</td>
                     <td><span class="risk-badge risk-${inst.risk}">Risk ${inst.risk}</span></td>
@@ -758,6 +765,9 @@
         document.getElementById("confirm-asset-details").innerText = `Instance #${inst.instanceId} - [${inst.cardId}] ${inst.name}`;
         document.getElementById("confirm-price-readout").innerText = `$${inst.currentValue}`;
         document.getElementById("confirm-price-readout").style.color = "var(--success-color)";
+        
+        // Fix: Update text parameters dynamically for sell context
+        document.getElementById("confirm-multi-btn").innerText = "Confirm & Sell Another";
         document.getElementById("confirm-cancel-btn").setAttribute("onclick", "openSellPortfolioScreen()");
         showScreen("view-confirm-transaction");
     }
@@ -777,11 +787,15 @@
         }
         document.getElementById("inv-asset").innerText = cardId;
         
-        // Automated session persistence injection point
         savePlayerSession();
 
-        if (wantsToBuyAnother && activeTransactionStaging.type === "BUY") {
-            document.getElementById("invoice-return-btn").setAttribute("onclick", "openBuyMarketScreen(); renderPortfolioTable(); checkGoalCompliance();");
+        // Fix: Reroute invoice navigation properly based on current action layout channel
+        if (wantsToBuyAnother) {
+            if (activeTransactionStaging.type === "BUY") {
+                document.getElementById("invoice-return-btn").setAttribute("onclick", "openBuyMarketScreen(); renderPortfolioTable(); checkGoalCompliance();");
+            } else {
+                document.getElementById("invoice-return-btn").setAttribute("onclick", "openSellPortfolioScreen(); renderPortfolioTable(); checkGoalCompliance();");
+            }
         } else {
             document.getElementById("invoice-return-btn").setAttribute("onclick", "returnToOverviewAfterInvoice()");
         }

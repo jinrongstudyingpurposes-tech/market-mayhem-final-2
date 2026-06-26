@@ -55,6 +55,11 @@
         .btn-success { background: var(--success-color); }
         .btn-secondary { background: #475569; }
 
+        /* Force table text and fields visibility over custom backgrounds */
+        table, th, td {
+            color: var(--text-color) !important;
+        }
+
         /* Cross-Device Adaptive Nav Layout */
         .adaptive-nav-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; background: rgba(15, 23, 42, 0.8); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color); }
         .nav-buttons-cluster { display: flex; flex-direction: column; gap: 8px; width: 100%; }
@@ -79,6 +84,9 @@
         .change-negative { color: var(--danger-color); font-weight: bold; }
         .change-none { color: #64748b; font-weight: bold; }
         .active-mod-tag { display: inline-block; background: #9333ea; color: white; padding: 2px 6px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; margin-top: 4px; margin-right: 4px; }
+
+        .bought-profit { color: var(--success-color) !important; font-weight: bold; }
+        .bought-loss { color: var(--danger-color) !important; font-weight: bold; }
 
         .confirm-preview-box { background: #0f172a; border: 1px dashed var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 15px; text-align: center; }
         .confirm-price-display { font-size: 2.2rem; font-weight: bold; color: var(--warning-color); margin: 8px 0; }
@@ -127,7 +135,10 @@
         <h2>Enter Live Game Space</h2>
         <div class="form-group">
             <label for="input-lobby-code">Live Game ID (Room Code):</label>
-            <input type="text" id="input-lobby-code" placeholder="e.g. 5005" style="text-transform: uppercase; font-family: monospace; letter-spacing: 2px; text-align: center; font-size: 1.4rem; max-width: 350px; margin: 0 auto; display: block;">
+            <input type="text" id="input-lobby-code" placeholder="e.g. 5005" style="text-transform: uppercase; font-family: monospace; letter-spacing: 2px; text-align: center; font-size: 1.4rem; max-width: 350px; margin: 0 auto; display: block; margin-bottom: 15px;">
+            
+            <label for="input-user-name">Your Game Username:</label>
+            <input type="text" id="input-user-name" placeholder="Enter name or initials" style="text-align: center; font-size: 1.2rem; max-width: 350px; margin: 0 auto; display: block;">
         </div>
         <div style="text-align: center; margin-top: 10px;">
             <button onclick="connectToLobbyRoom()">Connect to Shared Room</button>
@@ -172,6 +183,7 @@
                                 <th>Asset ID</th>
                                 <th>Asset Name</th>
                                 <th>Risk Tier</th>
+                                <th>Bought Price</th>
                                 <th>Current Value</th>
                                 <th>Net Change</th>
                             </tr>
@@ -198,7 +210,8 @@
                     <label for="action-select">Play Value-Altering Card:</label>
                     <select id="action-select" onchange="previewActionInfo()">
                         <option value="">-- Select Modifying Card --</option>
-                        <option value="A3">A3: Diversification (Halves next Scenario loss)</option>
+                        <option value="A3">A3: Diversification (Halves Scenario loss instantly/retroactively)</option>
+                        <option value="A4">A4: Expert Advice (Peek at next market trends)</option>
                         <option value="A6">A6: Safe Haven (Immunizes 1 specific owned asset card)</option>
                         <option value="A8">A8: Rebalance Portfolio (Swap card instance at current value)</option>
                         <option value="A9">A9: Hedge Funds (Bypasses worst single calculation loss)</option>
@@ -207,9 +220,20 @@
                         <option value="A12">A12: Overconfidence (x2 Gains AND x2 Losses)</option>
                         <option value="A15">A15: Greed (Doubles total scenario losses)</option>
                         <option value="A16">A16: Market Rumour (Doubles targeted sector losses)</option>
+                        <option value="A19">A19: FOMO (Forces rapid sector entry investment)</option>
+                        <option value="A11_TARGET">Attack: Pass Bad Advice (A11) to Player</option>
+                        <option value="A12_TARGET">Attack: Pass Overconfidence (A12) to Player</option>
+                        <option value="A15_TARGET">Attack: Pass Greed (A15) to Player</option>
+                        <option value="A16_TARGET">Attack: Pass Market Rumour (A16) to Player</option>
                     </select>
                     <p id="action-preview-text" style="font-size: 0.8rem; color: #eab308; margin-top: 6px; font-style: italic; min-height: 20px;"></p>
                 </div>
+                
+                <div class="form-group" id="target-player-group" style="display: none;">
+                    <label for="target-player-select">Select Target Player:</label>
+                    <select id="target-player-select"></select>
+                </div>
+                
                 <button style="width: 100%; background: #9333ea;" onclick="executeActionCardDirect()">Apply Action Card</button>
 
                 <div style="margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 15px;">
@@ -272,9 +296,10 @@
             <div id="confirm-asset-details" style="font-size: 1.1rem; font-weight: 600;">[ID] Name Details</div>
             <div class="confirm-price-display" id="confirm-price-readout">$0</div>
         </div>
-        <div style="display: flex; gap: 15px; justify-content: center;">
-            <button class="btn-success" style="width: 45%; max-width: 200px;" onclick="commitConfirmedTransaction()">Confirm &amp; Execute</button>
-            <button class="btn-secondary" style="width: 45%; max-width: 200px;" id="confirm-cancel-btn" onclick="showScreen('view-overview')">Cancel</button>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn-success" style="min-width: 160px;" onclick="commitConfirmedTransaction(false)">Confirm &amp; Complete</button>
+            <button class="btn-success" style="background-color: var(--warning-color); color: black; min-width: 160px;" id="confirm-multi-btn" onclick="commitConfirmedTransaction(true)">Confirm &amp; Buy Another</button>
+            <button class="btn-secondary" style="min-width: 160px;" id="confirm-cancel-btn" onclick="showScreen('view-overview')">Cancel</button>
         </div>
     </div>
 
@@ -287,7 +312,7 @@
             <div class="invoice-amount" id="inv-cash-flow">$0</div>
             <div id="inv-instruction" style="font-size: 0.9rem; color: #475569; border-top: 1px solid #e2e8f0; padding-top: 8px; line-height: 1.4;"></div>
         </div>
-        <button class="btn-success" onclick="returnToOverviewAfterInvoice()">Return to Overview Dashboard</button>
+        <button class="btn-success" id="invoice-return-btn" onclick="returnToOverviewAfterInvoice()">Return to Overview Dashboard</button>
     </div>
 </div>
 
@@ -325,8 +350,8 @@
 
     // --- SYSTEM FIXED ASSETS DICTIONARY STRUCTURES ---
     const PROFILE_DB = {
-        "Z1": { id: "Z1", name: "The Risky Rizzler (Risk-Taker)", desc: "Goal: Total Portfolio Assets Value >= $5,000 AND simultaneously hold at least 4 High-Risk (🔴) assets." },
-        "Z2": { id: "Z2", name: "The Safe Skibidi (Conservative)", desc: "Goal: Maintain a portfolio layout collection of at least 5 assets with ZERO High-Risk (🔴) assets." },
+        "Z1": { id: "Z1", name: "The Risky Rizzler (Risk-Taker)", desc: "Goal: Total Portfolio Assets Value >= $1,100 AND simultaneously hold at least 4 High-Risk (🔴) assets." },
+        "Z2": { id: "Z2", name: "The Safe Skibidi (Conservative)", desc: "Goal: Total Portfolio Assets Value >= $800, collection of at least 5 assets with ZERO High-Risk (🔴) assets." },
         "Z3": { id: "Z3", name: "The Balanced Baller (Balanced)", desc: "Goal: Own exactly 2 Low, 2 Mid, and 2 High risk items and accumulate baseline card passive yields >= $400." }
     };
 
@@ -383,7 +408,8 @@
 
     // --- ACTION CARD INFO LOOKUP ---
     const ACTION_DB_INFO = {
-        "A3":  "A3: Diversification — Halves the loss value of your next triggered Scenario round. One-time use per round.",
+        "A3":  "A3: Diversification — Halves the loss value of your current round or last triggered Scenario round.",
+        "A4":  "A4: Expert Advice — Peek at upcoming market trends.",
         "A6":  "A6: Safe Haven — Grants a single owned asset instance full immunity from the next Scenario value drop.",
         "A8":  "A8: Rebalance Portfolio — Swap one owned asset instance for any market card at current market price. Pay or collect the difference.",
         "A9":  "A9: Hedge Funds — After the next Scenario calculation, your single worst-performing holding's loss is cancelled to zero.",
@@ -391,15 +417,22 @@
         "A11": "A11: Bad Advice — Penalty modifier. Your next Scenario round gain returns are halved.",
         "A12": "A12: Overconfidence — Double-edged risk modifier. Both your gains AND losses are doubled in the next Scenario.",
         "A15": "A15: Greed — Penalty modifier. Your total Scenario losses are doubled in the next triggered round.",
-        "A16": "A16: Market Rumour — Choose a sector. All your holdings in that sector take double losses in the next Scenario."
+        "A16": "A16: Market Rumour — Choose a sector. All your holdings in that sector take double losses in the next Scenario.",
+        "A19": "A19: FOMO — Forces rapid sector entry investments.",
+        "A11_TARGET": "Attack Target with Bad Advice: Halves their next scenario round gains.",
+        "A12_TARGET": "Attack Target with Overconfidence: Doubles their next scenario gains and losses.",
+        "A15_TARGET": "Attack Target with Greed: Doubles their next total scenario losses.",
+        "A16_TARGET": "Attack Target with Market Rumour: Target takes double losses inside a selected sector."
     };
 
     // --- TRACKER RUNTIME VARIABLES ---
     let lobbyRoomCode = "";
+    let playerUsername = "";
     let globalMarketPrices = {}; 
     let ownedAssetInstances = [];     
     let instanceIdCounter = 1001;
     let chosenProfile = null;
+    let lastExecutedScenarioKey = "";
 
     let activePlayerModifiers = { diversification: false, hedgeFunds: false, badAdvice: false, overconfidence: false, greed: false, marketRumourSector: null };
     let activeTransactionStaging = { type: "", cardId: "", instanceId: null, executionPrice: 0 };
@@ -430,25 +463,52 @@
     // --- INSTANT VIEW TRANSITION & HANDSHAKE ---
     function connectToLobbyRoom() {
         let code = document.getElementById("input-lobby-code").value.trim().toUpperCase();
+        let name = document.getElementById("input-user-name").value.trim();
+        
         if (!code) { openCustomModal("Input Error", "Please provide a valid Room ID code.", false); return; }
+        if (!name) { openCustomModal("Input Error", "Please provide a game username to join.", false); return; }
         
         lobbyRoomCode = code;
+        playerUsername = name;
+        
         document.getElementById("lobby-status-pill").innerText = "LIVE SYNC";
         document.getElementById("lobby-status-pill").style.backgroundColor = "var(--success-color)";
-        document.getElementById("room-code-banner").innerText = `Room ID: ${lobbyRoomCode}`;
+        document.getElementById("room-code-banner").innerText = `Room: ${lobbyRoomCode} (${playerUsername})`;
 
-        // INSTANTLY switch panel layout to remove page transition lag completely
         showScreen("view-setup");
 
+        // Register profile username in room listing
+        rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}`).set({
+            activeModifiers: { badAdvice: false, overconfidence: false, greed: false, marketRumourSector: "" }
+        });
+
+        // Initialize general market data values if needed
         rtdb.ref(`rooms/${lobbyRoomCode}/marketState`).once('value', (snapshot) => {
             if (!snapshot.exists()) {
                 let initialPrices = {};
                 for (let k in ASSET_TEMPLATES) { initialPrices[k] = ASSET_TEMPLATES[k].cost; }
-                rtdb.ref(`rooms/${lobbyRoomCode}`).set({ marketState: initialPrices, activeScenarioTrigger: "" });
+                rtdb.ref(`rooms/${lobbyRoomCode}`).update({ marketState: initialPrices, activeScenarioTrigger: "" });
             }
         });
 
-        // Continuous network tracking nodes
+        // Listen for attacked external action modifiers targeting this user live
+        rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers`).on('value', (snap) => {
+            if (snap.exists()) {
+                let remoteMods = snap.val();
+                if (remoteMods.badAdvice) { activePlayerModifiers.badAdvice = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/badAdvice`).set(false); openCustomModal("Target Alert", "Another player targeted you with Bad Advice! (A11 applied)", false); }
+                if (remoteMods.overconfidence) { activePlayerModifiers.overconfidence = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/overconfidence`).set(false); openCustomModal("Target Alert", "Another player targeted you with Overconfidence! (A12 applied)", false); }
+                if (remoteMods.greed) { activePlayerModifiers.greed = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/greed`).set(false); openCustomModal("Target Alert", "Another player targeted you with Greed! (A15 applied)", false); }
+                if (remoteMods.marketRumourSector) { activePlayerModifiers.marketRumourSector = remoteMods.marketRumourSector; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/marketRumourSector`).set(""); openCustomModal("Target Alert", `Another player targeted you with Market Rumour on sector: ${remoteMods.marketRumourSector}! (A16 applied)`, false); }
+                renderPortfolioTable();
+            }
+        });
+
+        // Fetch user tracking list dropdown context rules
+        rtdb.ref(`rooms/${lobbyRoomCode}/players`).on('value', (snap) => {
+            if (snap.exists()) { updateTargetDropdown(snap.val()); }
+        });
+
+        // Continuous market monitoring networks
         rtdb.ref(`rooms/${lobbyRoomCode}/marketState`).on('value', (snap) => {
             if (snap.exists()) {
                 globalMarketPrices = snap.val();
@@ -461,6 +521,28 @@
             let val = snap.val();
             if (val) { executeScenarioLogicLocally(val); }
         });
+    }
+
+    function updateTargetDropdown(playersList) {
+        let select = document.getElementById("target-player-select");
+        select.innerHTML = "";
+        let count = 0;
+        for (let pName in playersList) {
+            if (pName !== playerUsername) {
+                let opt = document.createElement("option");
+                opt.value = pName;
+                opt.innerText = pName;
+                select.appendChild(opt);
+                count++;
+            }
+        }
+        // Toggle interface group container context
+        let actionVal = document.getElementById("action-select").value;
+        if (actionVal.includes("_TARGET") && count > 0) {
+            document.getElementById("target-player-group").style.display = "block";
+        } else {
+            document.getElementById("target-player-group").style.display = "none";
+        }
     }
 
     function initializeTrackerDashboard() {
@@ -483,6 +565,13 @@
     function previewActionInfo() {
         let key = document.getElementById("action-select").value;
         document.getElementById("action-preview-text").innerText = (key && ACTION_DB_INFO[key]) ? ACTION_DB_INFO[key] : "";
+        
+        // Dynamic target block displaying layout switches
+        if (key.includes("_TARGET")) {
+            document.getElementById("target-player-group").style.display = "block";
+        } else {
+            document.getElementById("target-player-group").style.display = "none";
+        }
     }
 
     function openCustomModal(title, text, isConfirm, onConfirmCallback) {
@@ -508,7 +597,7 @@
     function triggerEndGameDiscard() {
         openCustomModal(
             "Wipe & Discard Room ID?", 
-            `CRITICAL WARNING:\nConfirming this action deletes the shared Cloud Room ID [${lobbyRoomCode}] from Firebase server lists.\n\nThis immediately disconnects and resets ALL active player tabs playing in this room. Proceed?`, 
+            `CRITICAL WARNING:\nConfirming this action deletes the shared Room ID [${lobbyRoomCode}] from the servers.\n\nThis immediately resets ALL active players. Proceed?`, 
             true, 
             () => {
                 rtdb.ref(`rooms/${lobbyRoomCode}`).remove().then(() => {
@@ -534,12 +623,18 @@
             if (inst.tags.doubleGrowth) badgeTags += `<span class="active-mod-tag">x2 Growth (A10)</span>`;
             if (activePlayerModifiers.marketRumourSector === inst.sector) badgeTags += `<span class="active-mod-tag">x2 Sector Loss (A16)</span>`;
 
+            // Evaluate highlight colors based on Purchase versus Current values
+            let buyPriceClass = "";
+            if (inst.currentValue > inst.boughtPrice) buyPriceClass = "bought-profit";
+            else if (inst.currentValue < inst.boughtPrice) buyPriceClass = "bought-loss";
+
             tbody.innerHTML += `
                 <tr>
                     <td><small style="font-family:monospace; color:#94a3b8;">#${inst.instanceId}</small></td>
                     <td><strong>${inst.cardId}</strong></td>
                     <td>${inst.name} ${badgeTags}</td>
                     <td><span class="risk-badge risk-${inst.risk}">Risk ${inst.risk}</span></td>
+                    <td class="${buyPriceClass}">$${inst.boughtPrice}</td>
                     <td style="font-size: 1.1rem; font-weight: bold; color: var(--success-color);">$${inst.currentValue}</td>
                     <td>${changeCell}</td>
                 </tr>
@@ -547,7 +642,7 @@
         });
 
         if (ownedAssetInstances.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; font-style: italic;">No investment assets currently held. click Buy Asset above to explore market items.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #64748b; font-style: italic;">No investment assets currently held. click Buy Asset above to explore market items.</td></tr>`;
         }
         document.getElementById("total-portfolio-display").innerText = `$${netTotalPortfolioValue}`;
     }
@@ -611,10 +706,10 @@
         showScreen("view-confirm-transaction");
     }
 
-    function commitConfirmedTransaction() {
+    function commitConfirmedTransaction(wantsToBuyAnother) {
         let cardId = activeTransactionStaging.cardId; let price = activeTransactionStaging.executionPrice;
         if (activeTransactionStaging.type === "BUY") {
-            ownedAssetInstances.push({ instanceId: instanceIdCounter++, cardId: cardId, name: ASSET_TEMPLATES[cardId].name, risk: ASSET_TEMPLATES[cardId].risk, currentValue: price, netChange: 0, sector: ASSET_TEMPLATES[cardId].sector, tags: { immune: false, doubleGrowth: false } });
+            ownedAssetInstances.push({ instanceId: instanceIdCounter++, cardId: cardId, name: ASSET_TEMPLATES[cardId].name, risk: ASSET_TEMPLATES[cardId].risk, boughtPrice: price, currentValue: price, netChange: 0, sector: ASSET_TEMPLATES[cardId].sector, tags: { immune: false, doubleGrowth: false } });
             document.getElementById("inv-type").innerText = "ASSET PURCHASE SECURED (BUY)";
             document.getElementById("inv-cash-flow").innerText = `-$${price}`; document.getElementById("inv-cash-flow").style.color = "var(--danger-color)";
             document.getElementById("inv-instruction").innerText = `BANK NOTIFICATION: Pay $${price} cash to banker. Tokens go UNDER the physical layout card.`;
@@ -625,6 +720,14 @@
             document.getElementById("inv-instruction").innerText = `BANK NOTIFICATION: Return physical card layout. Banker pays player back $${price} from card cache notes.`;
         }
         document.getElementById("inv-asset").innerText = cardId;
+        
+        // Handle routing toggle conditional loops for multi-buys
+        if (wantsToBuyAnother && activeTransactionStaging.type === "BUY") {
+            document.getElementById("invoice-return-btn").setAttribute("onclick", "openBuyMarketScreen(); renderPortfolioTable(); checkGoalCompliance();");
+        } else {
+            document.getElementById("invoice-return-btn").setAttribute("onclick", "returnToOverviewAfterInvoice()");
+        }
+        
         showScreen("view-invoice");
     }
 
@@ -645,14 +748,60 @@
         btnConfirm.parentNode.replaceChild(newConfirm, btnConfirm);
         btnCancel.parentNode.replaceChild(newCancel, btnCancel);
         newConfirm.addEventListener("click", () => { overlay.classList.remove("active-modal"); onConfirm(field.value.trim()); });
-        newCancel.addEventListener("click", () => { overlay.classList.remove("active-modal"); document.getElementById("action-select").value = ""; document.getElementById("action-preview-text").innerText = ""; });
+        newCancel.addEventListener("click", () => { overlay.classList.remove("active-modal"); resetActionSelectionFields(); });
         overlay.classList.add("active-modal");
         setTimeout(() => field.focus(), 100);
     }
 
+    function resetActionSelectionFields() {
+        document.getElementById("action-select").value = ""; 
+        document.getElementById("action-preview-text").innerText = "";
+        document.getElementById("target-player-group").style.display = "none";
+    }
+
     function executeActionCardDirect() {
         let cardKey = document.getElementById("action-select").value; if (!cardKey) return;
-        if (cardKey === "A3") { activePlayerModifiers.diversification = true; openCustomModal("Action Card Logged", "A3 Diversification active. Next round scenario loss steps halved.", false); }
+        
+        // Handle targeted peer attacks dynamically using Firebase paths without requiring card entry actions
+        if (cardKey.includes("_TARGET")) {
+            let targetedPlayer = document.getElementById("target-player-select").value;
+            if (!targetedPlayer) { openCustomModal("Selection Error", "No other player found in room list to target.", false); return; }
+            
+            let baseKey = cardKey.split("_")[0]; // extraction string (e.g. A11)
+            
+            if (baseKey === "A16") {
+                openInputModal("A16: Target Sector Attack", "Type the target sector for your opponent's holdings:", "Tech / Consumer / Healthcare / Financial / Energy", (val) => {
+                    let sect = val.trim(); if (!sect) return;
+                    rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update({ marketRumourSector: sect });
+                    openCustomModal("Attack Deployed", `Sent Market Rumour (${sect}) directly to player ${targetedPlayer}!`, false);
+                    resetActionSelectionFields();
+                });
+            } else {
+                let nodeUpdate = {};
+                if (baseKey === "A11") nodeUpdate = { badAdvice: true };
+                if (baseKey === "A12") nodeUpdate = { overconfidence: true };
+                if (baseKey === "A15") nodeUpdate = { greed: true };
+                
+                rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update(nodeUpdate);
+                openCustomModal("Attack Deployed", `Successfully casted Action ${baseKey} against player ${targetedPlayer}!`, false);
+                resetActionSelectionFields();
+            }
+            return;
+        }
+
+        // Standard local execution card logic flows
+        if (cardKey === "A3") { 
+            activePlayerModifiers.diversification = true; 
+            // Run A3 effect instantly on the current or active round calculation state
+            if (lastExecutedScenarioKey) {
+                openCustomModal("A3 Activated Retroactively", "A3 Diversification logged! Modifying value points on current scenario retroactively.", false);
+                recomputeScenarioWithA3(lastExecutedScenarioKey);
+            } else {
+                openCustomModal("Action Card Logged", "A3 Diversification active. Next round scenario loss structures halved.", false); 
+            }
+        }
+        else if (cardKey === "A4") { openCustomModal("A4: Expert Advice Logged", "Action profile set. You peek at upcoming market trendlines.", false); }
+        else if (cardKey === "A19") { openCustomModal("A19: FOMO Logged", "Action parameter set. Rapid sector allocation required.", false); }
         else if (cardKey === "A6") {
             if (ownedAssetInstances.length === 0) { openCustomModal("Action Refused", "No active holding instances present to protect.", false); return; }
             let t = "Type the Instance ID to protect:\n\n"; ownedAssetInstances.forEach(i => { t += `#${i.instanceId}: [${i.cardId}] ${i.name}\n`; });
@@ -660,7 +809,7 @@
                 let tid = parseInt(val); let m = ownedAssetInstances.find(x => x.instanceId === tid);
                 if (m) { m.tags.immune = true; openCustomModal("Action Card Logged", `Instance #${tid} is now immune from the next value shock drop.`, false); }
                 else { openCustomModal("Invalid ID", "No matching instance found. Action cancelled.", false); }
-                document.getElementById("action-select").value = ""; document.getElementById("action-preview-text").innerText = "";
+                resetActionSelectionFields();
                 renderPortfolioTable();
             }); return;
         }
@@ -673,13 +822,13 @@
                     let newCode = codeVal.toUpperCase(); if (!ASSET_TEMPLATES.hasOwnProperty(newCode)) { openCustomModal("Invalid Code", `'${newCode}' is not a valid asset code.`, false); return; }
                     let diff = oldInst.currentValue - (globalMarketPrices[newCode] || ASSET_TEMPLATES[newCode].cost);
                     ownedAssetInstances.splice(ownedAssetInstances.findIndex(x => x.instanceId === oldId), 1);
-                    ownedAssetInstances.push({ instanceId: instanceIdCounter++, cardId: newCode, name: ASSET_TEMPLATES[newCode].name, risk: ASSET_TEMPLATES[newCode].risk, currentValue: (globalMarketPrices[newCode] || ASSET_TEMPLATES[newCode].cost), netChange: 0, sector: ASSET_TEMPLATES[newCode].sector, tags: { immune: false, doubleGrowth: false } });
+                    ownedAssetInstances.push({ instanceId: instanceIdCounter++, cardId: newCode, name: ASSET_TEMPLATES[newCode].name, risk: ASSET_TEMPLATES[newCode].risk, boughtPrice: (globalMarketPrices[newCode] || ASSET_TEMPLATES[newCode].cost), currentValue: (globalMarketPrices[newCode] || ASSET_TEMPLATES[newCode].cost), netChange: 0, sector: ASSET_TEMPLATES[newCode].sector, tags: { immune: false, doubleGrowth: false } });
                     document.getElementById("inv-type").innerText = "PORTFOLIO REBALANCE SWAP (A8)";
                     document.getElementById("inv-asset").innerText = `Traded #${oldId} away for a new copy of [${newCode}]`;
                     document.getElementById("inv-cash-flow").innerText = (diff >= 0 ? "+" : "-") + `$${Math.abs(diff)}`;
                     document.getElementById("inv-cash-flow").style.color = diff >= 0 ? "var(--success-color)" : "var(--danger-color)";
                     document.getElementById("inv-instruction").innerText = diff >= 0 ? `Collect exactly +$${diff} from banker.` : `Hand exactly $${Math.abs(diff)} to banker.`;
-                    document.getElementById("action-select").value = ""; document.getElementById("action-preview-text").innerText = "";
+                    resetActionSelectionFields();
                     showScreen("view-invoice");
                 });
             }); return;
@@ -692,7 +841,7 @@
                 let tid = parseInt(val); let m = ownedAssetInstances.find(x => x.instanceId === tid);
                 if (m) { m.tags.doubleGrowth = true; openCustomModal("Action Card Logged", "Instance set to generate double growth round speeds.", false); }
                 else { openCustomModal("Invalid ID", "No matching instance found. Action cancelled.", false); }
-                document.getElementById("action-select").value = ""; document.getElementById("action-preview-text").innerText = "";
+                resetActionSelectionFields();
                 renderPortfolioTable();
             }); return;
         }
@@ -704,12 +853,12 @@
                 let sIn = val.trim(); if (!sIn) return;
                 activePlayerModifiers.marketRumourSector = sIn; 
                 openCustomModal("Action Card Logged", `Rumours targeting ${sIn}.`, false);
-                document.getElementById("action-select").value = ""; document.getElementById("action-preview-text").innerText = "";
+                resetActionSelectionFields();
                 renderPortfolioTable();
             }); return;
         }
 
-        document.getElementById("action-select").value = ""; document.getElementById("action-preview-text").innerText = "";
+        resetActionSelectionFields();
         renderPortfolioTable();
     }
 
@@ -738,6 +887,7 @@
 
     function executeScenarioLogicLocally(triggerString) {
         let scenarioKey = triggerString.split("_")[0]; let scenario = SCENARIO_DB[scenarioKey];
+        lastExecutedScenarioKey = scenarioKey; // Store instance signature for retroactive execution properties
         let instanceDeltaRegistry = {};
 
         ownedAssetInstances.forEach(inst => {
@@ -791,17 +941,37 @@
         openCustomModal("Scenario Notification", `Scenario executed inside room:\n[${scenarioKey}] ${scenario.title}\n\nYour numbers have updated automatically. Check Net Change flags.`, false);
     }
 
+    // Retroactive mitigation adjustment computation engine for A3 Diversification
+    function recomputeScenarioWithA3(scenarioKey) {
+        let scenario = SCENARIO_DB[scenarioKey];
+        ownedAssetInstances.forEach(inst => {
+            // Check if this card code suffered a drop during the current active session
+            if (scenario.rules.hasOwnProperty(inst.cardId) && scenario.rules[inst.cardId] < 0) {
+                let originalLoss = inst.netChange;
+                let mitigatedLoss = Math.floor(originalLoss * 0.5);
+                let recoveryAdjustment = mitigatedLoss - originalLoss; // Positive delta points back
+                
+                inst.currentValue += recoveryAdjustment;
+                inst.netChange = mitigatedLoss;
+                if (inst.currentValue < 0) inst.currentValue = 0;
+            }
+        });
+        activePlayerModifiers.diversification = false;
+        renderPortfolioTable();
+        checkGoalCompliance();
+    }
+
     function checkGoalCompliance() {
         if (!chosenProfile) return;
         let totVal = ownedAssetInstances.reduce((sum, i) => sum + i.currentValue, 0);
         let low = 0; let mid = 0; let high = 0;
         ownedAssetInstances.forEach(i => { if (i.risk === 1) low++; if (i.risk === 2) mid++; if (i.risk === 3) high++; });
-        let passive = ownedAssetInstances.reduce((sum, i) => sum + (i.tags.doubleGrowth ? (ASSET_TEMPLATES[i.cardId].growth * 2) : ASSET_TEMPLATES[i.cardId].growth), 0);
 
         let met = false;
-        if (chosenProfile.id === "Z1") met = (totVal >= 5000 && high >= 4);
-        else if (chosenProfile.id === "Z2") met = (ownedAssetInstances.length >= 5 && high === 0);
-        else if (chosenProfile.id === "Z3") met = (passive >= 400 && low === 2 && mid === 2 && high === 2);
+        // Updated investor goals targeting updated net worth calibrations
+        if (chosenProfile.id === "Z1") met = (totVal >= 1100 && high >= 4);
+        else if (chosenProfile.id === "Z2") met = (totVal >= 800 && ownedAssetInstances.length >= 5 && high === 0);
+        else if (chosenProfile.id === "Z3") met = (ownedAssetInstances.length >= 6 && low >= 2 && mid >= 2 && high >= 2);
 
         const ind = document.getElementById("goal-status-box");
         if (met) {

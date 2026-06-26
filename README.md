@@ -1,3 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Market Mayhem - Universal Companion Tracker</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #3b82f6;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --warning-color: #eab308;
+            --border-color: #334155;
+            --goal-met-bg: #064e3b; 
+        }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -6,7 +24,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             padding: 12px;
-            font-size: 16px; /* Prevents auto-zoom on iOS mobile forms */
+            font-size: 16px;
             transition: background-color 0.5s ease;
             -webkit-text-size-adjust: 100%;
         }
@@ -37,12 +55,59 @@
         .btn-success { background: var(--success-color); }
         .btn-secondary { background: #475569; }
 
-        /* Force table text and fields visibility over custom backgrounds */
-        table, th, td {
-            color: var(--text-color) !important;
+        /* ABSOLUTE FORCE OVERRIDES FOR TABLE STYLING - FIXES WHITE BACKGROUND BUG */
+        table, table.overview-table, .overview-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            margin-bottom: 0 !important;
+        }
+        
+        table.overview-table th {
+            background-color: #1e293b !important;
+            color: var(--accent-color) !important;
+            font-weight: bold !important;
+            padding: 12px 10px !important;
+            border-bottom: 2px solid var(--border-color) !important;
+            text-align: left !important;
         }
 
-        /* Cross-Device Adaptive Nav Layout */
+        table.overview-table tr, table.overview-table td {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            padding: 12px 10px !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            text-align: left !important;
+        }
+
+        table.overview-table tr:hover td {
+            background-color: #1e293b !important;
+        }
+
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+            background: #0f172a !important;
+        }
+
+        .risk-badge { padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; font-weight: bold; display: inline-block; }
+        .risk-1 { background-color: var(--success-color); color: white; }
+        .risk-2 { background-color: var(--warning-color); color: black; }
+        .risk-3 { background-color: var(--danger-color); color: white; }
+
+        .change-positive { color: var(--success-color) !important; font-weight: bold; }
+        .change-negative { color: var(--danger-color) !important; font-weight: bold; }
+        .change-none { color: #64748b !important; font-weight: bold; }
+        .active-mod-tag { display: inline-block; background: #9333ea; color: white; padding: 2px 6px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; margin-top: 4px; margin-right: 4px; }
+
+        .bought-profit { background-color: rgba(34, 197, 94, 0.15) !important; color: #22c55e !important; font-weight: bold; }
+        .bought-loss { background-color: rgba(239, 68, 68, 0.15) !important; color: #ef4444 !important; font-weight: bold; }
+
         .adaptive-nav-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; background: rgba(15, 23, 42, 0.8); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color); }
         .nav-buttons-cluster { display: flex; flex-direction: column; gap: 8px; width: 100%; }
         
@@ -51,24 +116,6 @@
 
         .layout-grid { display: flex; flex-direction: column; gap: 20px; }
         .sub-panel { background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; height: fit-content; }
-
-        .table-responsive-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 15px; background: #0f172a; }
-        .overview-table { width: 100%; border-collapse: collapse; min-width: 550px; }
-        .overview-table th, .overview-table td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
-        .overview-table th { background-color: #1e293b; color: var(--accent-color); font-weight: bold; }
-        
-        .risk-badge { padding: 2px 6px; font-size: 0.75rem; border-radius: 4px; font-weight: bold; display: inline-block; }
-        .risk-1 { background-color: var(--success-color); color: white; }
-        .risk-2 { background-color: var(--warning-color); color: black; }
-        .risk-3 { background-color: var(--danger-color); color: white; }
-
-        .change-positive { color: var(--success-color); font-weight: bold; }
-        .change-negative { color: var(--danger-color); font-weight: bold; }
-        .change-none { color: #64748b; font-weight: bold; }
-        .active-mod-tag { display: inline-block; background: #9333ea; color: white; padding: 2px 6px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; margin-top: 4px; margin-right: 4px; }
-
-        .bought-profit { color: var(--success-color) !important; font-weight: bold; }
-        .bought-loss { color: var(--danger-color) !important; font-weight: bold; }
 
         .confirm-preview-box { background: #0f172a; border: 1px dashed var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 15px; text-align: center; }
         .confirm-price-display { font-size: 2.2rem; font-weight: bold; color: var(--warning-color); margin: 8px 0; }
@@ -198,21 +245,22 @@
                         <option value="A8">A8: Rebalance Portfolio (Swap card instance at current value)</option>
                         <option value="A9">A9: Hedge Funds (Bypasses worst single calculation loss)</option>
                         <option value="A10">A10: Investment Strategy (x2 Base growth permanently)</option>
-                        <option value="A11">A11: Bad Advice (Halves next scenario returns)</option>
-                        <option value="A12">A12: Overconfidence (x2 Gains AND x2 Losses)</option>
-                        <option value="A15">A15: Greed (Doubles total scenario losses)</option>
-                        <option value="A16">A16: Market Rumour (Doubles targeted sector losses)</option>
-                        <option value="A19">A19: FOMO (Forces rapid sector entry investment)</option>
-                        <option value="A11_TARGET">Attack: Pass Bad Advice (A11) to Player</option>
-                        <option value="A12_TARGET">Attack: Pass Overconfidence (A12) to Player</option>
-                        <option value="A15_TARGET">Attack: Pass Greed (A15) to Player</option>
-                        <option value="A16_TARGET">Attack: Pass Market Rumour (A16) to Player</option>
+                        <option value="A11">A11: Bad Advice (Target an opponent to halve their gains)</option>
+                        <option value="A12">A12: Overconfidence (Target an opponent to x2 their gains &amp; losses)</option>
+                        <option value="A13">A13: Insider Trading (Target an opponent to affect balance rules)</option>
+                        <option value="A14">A14: Panic Selling (Target an opponent to force safe asset dump)</option>
+                        <option value="A15">A15: Greed (Target an opponent to double their scenario losses)</option>
+                        <option value="A16">A16: Market Rumour (Target an opponent to double their sector losses)</option>
+                        <option value="A17">A17: Crypto Scams (Target an opponent to chip low risk tiers)</option>
+                        <option value="A18">A18: Social Media Hype (Target an opponent to trigger forced buy views)</option>
+                        <option value="A19">A19: FOMO (Target an opponent to force immediate mid/high risk buy)</option>
+                        <option value="A20">A20: Revenge Trading (Target an opponent to swap high volatility parameters)</option>
                     </select>
                     <p id="action-preview-text" style="font-size: 0.8rem; color: #eab308; margin-top: 6px; font-style: italic; min-height: 20px;"></p>
                 </div>
                 
                 <div class="form-group" id="target-player-group" style="display: none;">
-                    <label for="target-player-select">Select Target Player:</label>
+                    <label for="target-player-select">Select Target Opponent Player Name:</label>
                     <select id="target-player-select"></select>
                 </div>
                 
@@ -322,7 +370,6 @@
 </div>
 
 <script>
-    // --- COLLABORATIVE HARDCODED FIREBASE URL NODE CONNECTION ---
     const firebaseConfig = {
         databaseURL: "https://market-mayhem-tracker-default-rtdb.asia-southeast1.firebasedatabase.app/"
     };
@@ -330,7 +377,6 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const rtdb = firebase.database();
 
-    // --- SYSTEM FIXED ASSETS DICTIONARY STRUCTURES ---
     const PROFILE_DB = {
         "Z1": { id: "Z1", name: "The Risky Rizzler (Risk-Taker)", desc: "Goal: Total Portfolio Assets Value >= $1,100 AND simultaneously hold at least 4 High-Risk (🔴) assets." },
         "Z2": { id: "Z2", name: "The Safe Skibidi (Conservative)", desc: "Goal: Total Portfolio Assets Value >= $800, collection of at least 5 assets with ZERO High-Risk (🔴) assets." },
@@ -388,26 +434,25 @@
         "S14": { title: "Energy Sector Collapse", rules: { "E5": 10, "E6": 10, "E9": 35, "E11": -25, "F1": 45, "B4": -30, "F3": -25 }, desc: "Lockdowns freeze travel. Oil hits negative values, breaking old fossil high-yield energy bonds while software structures stay safe." }
     };
 
-    // --- ACTION CARD INFO LOOKUP ---
     const ACTION_DB_INFO = {
         "A3":  "A3: Diversification — Halves the loss value of your current round or last triggered Scenario round.",
-        "A4":  "A4: Expert Advice — Peek at upcoming market trends.",
+        "A4":  "A4: Expert Advice — Peek at upcoming market trendlines.",
         "A6":  "A6: Safe Haven — Grants a single owned asset instance full immunity from the next Scenario value drop.",
-        "A8":  "A8: Rebalance Portfolio — Swap one owned asset instance for any market card at current market price. Pay or collect the difference.",
-        "A9":  "A9: Hedge Funds — After the next Scenario calculation, your single worst-performing holding's loss is cancelled to zero.",
-        "A10": "A10: Investment Strategy — Select one owned asset. Its base passive growth yield is permanently doubled for all future scenarios.",
-        "A11": "A11: Bad Advice — Penalty modifier. Your next Scenario round gain returns are halved.",
-        "A12": "A12: Overconfidence — Double-edged risk modifier. Both your gains AND losses are doubled in the next Scenario.",
-        "A15": "A15: Greed — Penalty modifier. Your total Scenario losses are doubled in the next triggered round.",
-        "A16": "A16: Market Rumour — Choose a sector. All your holdings in that sector take double losses in the next Scenario.",
-        "A19": "A19: FOMO — Forces rapid sector entry investments.",
-        "A11_TARGET": "Attack Target with Bad Advice: Halves their next scenario round gains.",
-        "A12_TARGET": "Attack Target with Overconfidence: Doubles their next scenario gains and losses.",
-        "A15_TARGET": "Attack Target with Greed: Doubles their next total scenario losses.",
-        "A16_TARGET": "Attack Target with Market Rumour: Target takes double losses inside a selected sector."
+        "A8":  "A8: Rebalance Portfolio — Swap one owned asset instance for any market card at current market price.",
+        "A9":  "A9: Hedge Funds — Cancels worst single calculation loss to zero.",
+        "A10": "A10: Investment Strategy — Select one owned asset to permanently double its growth speed.",
+        "A11": "A11: Bad Advice — Attack another player to half their next scenario returns.",
+        "A12": "A12: Overconfidence — Attack another player to double both their gains and losses.",
+        "A13": "A13: Insider Trading — Attack another player to intercept regulatory actions.",
+        "A14": "A14: Panic Selling — Attack another player to trigger forced baseline asset dumping.",
+        "A15": "A15: Greed — Attack another player to double their total scenario losses.",
+        "A16": "A16: Market Rumour — Attack another player to double their targeted sector losses.",
+        "A17": "A17: Crypto Scams — Attack another player to trigger speculative digital asset liquidation.",
+        "A18": "A18: Social Media Hype — Attack another player to enforce volatility shifts.",
+        "A19": "A19: FOMO — Attack another player to force immediate entry into high volatility sectors.",
+        "A20": "A20: Revenge Trading — Attack another player to reverse trade yields."
     };
 
-    // --- TRACKER RUNTIME VARIABLES ---
     let lobbyRoomCode = "";
     let playerUsername = "";
     let globalMarketPrices = {}; 
@@ -440,9 +485,10 @@
     function showScreen(screenId) {
         document.querySelectorAll('.view-panel').forEach(view => view.classList.remove('active-view'));
         document.getElementById(screenId).classList.add('active-view');
+        // Re-trigger table sizing corrections on panel change
+        renderPortfolioTable();
     }
 
-    // --- INSTANT VIEW TRANSITION & HANDSHAKE ---
     function connectToLobbyRoom() {
         let code = document.getElementById("input-lobby-code").value.trim().toUpperCase();
         let name = document.getElementById("input-user-name").value.trim();
@@ -459,38 +505,35 @@
 
         showScreen("view-setup");
 
-        // Register profile username in room listing
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}`).set({
-            activeModifiers: { badAdvice: false, overconfidence: false, greed: false, marketRumourSector: "" }
+            activeModifiers: { badAdvice: false, overconfidence: false, greed: false, marketRumourSector: "", textPayload: "" }
         });
 
-        // Initialize general market data values if needed
         rtdb.ref(`rooms/${lobbyRoomCode}/marketState`).once('value', (snapshot) => {
             if (!snapshot.exists()) {
                 let initialPrices = {};
                 for (let k in ASSET_TEMPLATES) { initialPrices[k] = ASSET_TEMPLATES[k].cost; }
-                rtdb.ref(`rooms/${lobbyRoomCode}`).update({ marketState: initialPrices, activeScenarioTrigger: "" });
+                rtdb.ref(`rooms/${lobbyRoomCode}/marketState`).set(initialPrices);
+                rtdb.ref(`rooms/${lobbyRoomCode}/activeScenarioTrigger`).set("");
             }
         });
 
-        // Listen for attacked external action modifiers targeting this user live
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers`).on('value', (snap) => {
             if (snap.exists()) {
                 let remoteMods = snap.val();
-                if (remoteMods.badAdvice) { activePlayerModifiers.badAdvice = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/badAdvice`).set(false); openCustomModal("Target Alert", "Another player targeted you with Bad Advice! (A11 applied)", false); }
-                if (remoteMods.overconfidence) { activePlayerModifiers.overconfidence = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/overconfidence`).set(false); openCustomModal("Target Alert", "Another player targeted you with Overconfidence! (A12 applied)", false); }
-                if (remoteMods.greed) { activePlayerModifiers.greed = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/greed`).set(false); openCustomModal("Target Alert", "Another player targeted you with Greed! (A15 applied)", false); }
-                if (remoteMods.marketRumourSector) { activePlayerModifiers.marketRumourSector = remoteMods.marketRumourSector; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/marketRumourSector`).set(""); openCustomModal("Target Alert", `Another player targeted you with Market Rumour on sector: ${remoteMods.marketRumourSector}! (A16 applied)`, false); }
+                if (remoteMods.badAdvice) { activePlayerModifiers.badAdvice = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/badAdvice`).set(false); openCustomModal("Target Alert", "Another player hit you with Bad Advice! (A11 applied)", false); }
+                if (remoteMods.overconfidence) { activePlayerModifiers.overconfidence = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/overconfidence`).set(false); openCustomModal("Target Alert", "Another player hit you with Overconfidence! (A12 applied)", false); }
+                if (remoteMods.greed) { activePlayerModifiers.greed = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/greed`).set(false); openCustomModal("Target Alert", "Another player hit you with Greed! (A15 applied)", false); }
+                if (remoteMods.marketRumourSector) { activePlayerModifiers.marketRumourSector = remoteMods.marketRumourSector; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/marketRumourSector`).set(""); openCustomModal("Target Alert", `Another player hit you with Market Rumour on sector: ${remoteMods.marketRumourSector}! (A16 applied)`, false); }
+                if (remoteMods.textPayload) { openCustomModal("Target Alert", `You have been targeted by an opponent card effect:\n\n"${remoteMods.textPayload}"`, false); rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/textPayload`).set(""); }
                 renderPortfolioTable();
             }
         });
 
-        // Fetch user tracking list dropdown context rules
         rtdb.ref(`rooms/${lobbyRoomCode}/players`).on('value', (snap) => {
             if (snap.exists()) { updateTargetDropdown(snap.val()); }
         });
 
-        // Continuous market monitoring networks
         rtdb.ref(`rooms/${lobbyRoomCode}/marketState`).on('value', (snap) => {
             if (snap.exists()) {
                 globalMarketPrices = snap.val();
@@ -503,6 +546,11 @@
             let val = snap.val();
             if (val) { executeScenarioLogicLocally(val); }
         });
+    }
+
+    function isDontCard(key) {
+        const num = parseInt(key.replace("A", ""));
+        return (num >= 11 && num <= 20);
     }
 
     function updateTargetDropdown(playersList) {
@@ -518,9 +566,8 @@
                 count++;
             }
         }
-        // Toggle interface group container context
         let actionVal = document.getElementById("action-select").value;
-        if (actionVal.includes("_TARGET") && count > 0) {
+        if (isDontCard(actionVal) && count > 0) {
             document.getElementById("target-player-group").style.display = "block";
         } else {
             document.getElementById("target-player-group").style.display = "none";
@@ -548,8 +595,7 @@
         let key = document.getElementById("action-select").value;
         document.getElementById("action-preview-text").innerText = (key && ACTION_DB_INFO[key]) ? ACTION_DB_INFO[key] : "";
         
-        // Dynamic target block displaying layout switches
-        if (key.includes("_TARGET")) {
+        if (isDontCard(key)) {
             document.getElementById("target-player-group").style.display = "block";
         } else {
             document.getElementById("target-player-group").style.display = "none";
@@ -575,7 +621,6 @@
         overlay.classList.add("active-modal");
     }
 
-    // --- TERMINATE ROOM DATA DISCARD ROUTINES ---
     function triggerEndGameDiscard() {
         openCustomModal(
             "Wipe & Discard Room ID?", 
@@ -589,7 +634,6 @@
         );
     }
 
-    // --- RENDERING CORE MATRIX LAYERS ---
     function renderPortfolioTable() {
         const tbody = document.getElementById("portfolio-table-body"); tbody.innerHTML = "";
         let netTotalPortfolioValue = 0;
@@ -605,7 +649,6 @@
             if (inst.tags.doubleGrowth) badgeTags += `<span class="active-mod-tag">x2 Growth (A10)</span>`;
             if (activePlayerModifiers.marketRumourSector === inst.sector) badgeTags += `<span class="active-mod-tag">x2 Sector Loss (A16)</span>`;
 
-            // Evaluate highlight colors based on Purchase versus Current values
             let buyPriceClass = "";
             if (inst.currentValue > inst.boughtPrice) buyPriceClass = "bought-profit";
             else if (inst.currentValue < inst.boughtPrice) buyPriceClass = "bought-loss";
@@ -624,7 +667,7 @@
         });
 
         if (ownedAssetInstances.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #64748b; font-style: italic;">No investment assets currently held. click Buy Asset above to explore market items.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94a3b8; font-style: italic; background-color: #0f172a !important;">No investment assets currently held. Click Buy Asset above to explore market items.</td></tr>`;
         }
         document.getElementById("total-portfolio-display").innerText = `$${netTotalPortfolioValue}`;
     }
@@ -661,7 +704,9 @@
 
     function openSellPortfolioScreen() {
         const tbody = document.getElementById("sell-portfolio-table-body"); tbody.innerHTML = "";
-        if (ownedAssetInstances.length === 0) tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; font-style: italic; padding: 20px 10px;">Your portfolio contains no holdings to sell.</td></tr>`;
+        if (ownedAssetInstances.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; font-style: italic; padding: 20px 10px; background-color: #0f172a !important;">Your portfolio contains no holdings to sell.</td></tr>`;
+        }
         ownedAssetInstances.forEach(inst => {
             tbody.innerHTML += `
                 <tr>
@@ -703,7 +748,6 @@
         }
         document.getElementById("inv-asset").innerText = cardId;
         
-        // Handle routing toggle conditional loops for multi-buys
         if (wantsToBuyAnother && activeTransactionStaging.type === "BUY") {
             document.getElementById("invoice-return-btn").setAttribute("onclick", "openBuyMarketScreen(); renderPortfolioTable(); checkGoalCompliance();");
         } else {
@@ -744,14 +788,12 @@
     function executeActionCardDirect() {
         let cardKey = document.getElementById("action-select").value; if (!cardKey) return;
         
-        // Handle targeted peer attacks dynamically using Firebase paths without requiring card entry actions
-        if (cardKey.includes("_TARGET")) {
+        // Dynamic target matching processing path rules for opponent "Don't" cards (A11-A20)
+        if (isDontCard(cardKey)) {
             let targetedPlayer = document.getElementById("target-player-select").value;
-            if (!targetedPlayer) { openCustomModal("Selection Error", "No other player found in room list to target.", false); return; }
+            if (!targetedPlayer) { openCustomModal("Selection Error", "No other opponent player registered to target inside this room space.", false); return; }
             
-            let baseKey = cardKey.split("_")[0]; // extraction string (e.g. A11)
-            
-            if (baseKey === "A16") {
+            if (cardKey === "A16") {
                 openInputModal("A16: Target Sector Attack", "Type the target sector for your opponent's holdings:", "Tech / Consumer / Healthcare / Financial / Energy", (val) => {
                     let sect = val.trim(); if (!sect) return;
                     rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update({ marketRumourSector: sect });
@@ -760,21 +802,23 @@
                 });
             } else {
                 let nodeUpdate = {};
-                if (baseKey === "A11") nodeUpdate = { badAdvice: true };
-                if (baseKey === "A12") nodeUpdate = { overconfidence: true };
-                if (baseKey === "A15") nodeUpdate = { greed: true };
+                if (cardKey === "A11") nodeUpdate = { badAdvice: true };
+                else if (cardKey === "A12") nodeUpdate = { overconfidence: true };
+                else if (cardKey === "A15") nodeUpdate = { greed: true };
+                else {
+                    nodeUpdate = { textPayload: `Card ${cardKey} has been activated directly against your portfolio rules by an opponent!` };
+                }
                 
                 rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update(nodeUpdate);
-                openCustomModal("Attack Deployed", `Successfully casted Action ${baseKey} against player ${targetedPlayer}!`, false);
+                openCustomModal("Attack Deployed", `Successfully casted Action ${cardKey} targeting player ${targetedPlayer}!`, false);
                 resetActionSelectionFields();
             }
             return;
         }
 
-        // Standard local execution card logic flows
+        // Domestic holding asset cards (A3-A10)
         if (cardKey === "A3") { 
             activePlayerModifiers.diversification = true; 
-            // Run A3 effect instantly on the current or active round calculation state
             if (lastExecutedScenarioKey) {
                 openCustomModal("A3 Activated Retroactively", "A3 Diversification logged! Modifying value points on current scenario retroactively.", false);
                 recomputeScenarioWithA3(lastExecutedScenarioKey);
@@ -783,7 +827,6 @@
             }
         }
         else if (cardKey === "A4") { openCustomModal("A4: Expert Advice Logged", "Action profile set. You peek at upcoming market trendlines.", false); }
-        else if (cardKey === "A19") { openCustomModal("A19: FOMO Logged", "Action parameter set. Rapid sector allocation required.", false); }
         else if (cardKey === "A6") {
             if (ownedAssetInstances.length === 0) { openCustomModal("Action Refused", "No active holding instances present to protect.", false); return; }
             let t = "Type the Instance ID to protect:\n\n"; ownedAssetInstances.forEach(i => { t += `#${i.instanceId}: [${i.cardId}] ${i.name}\n`; });
@@ -827,18 +870,6 @@
                 renderPortfolioTable();
             }); return;
         }
-        else if (cardKey === "A11") { activePlayerModifiers.badAdvice = true; openCustomModal("Action Card Logged", "Bad advice logged.", false); }
-        else if (cardKey === "A12") { activePlayerModifiers.overconfidence = true; openCustomModal("Action Card Logged", "Overconfidence logged.", false); }
-        else if (cardKey === "A15") { activePlayerModifiers.greed = true; openCustomModal("Action Card Logged", "Greed logged.", false); }
-        else if (cardKey === "A16") { 
-            openInputModal("A16: Market Rumour", "Type the target sector:", "Tech / Consumer / Healthcare / Financial / Energy", (val) => {
-                let sIn = val.trim(); if (!sIn) return;
-                activePlayerModifiers.marketRumourSector = sIn; 
-                openCustomModal("Action Card Logged", `Rumours targeting ${sIn}.`, false);
-                resetActionSelectionFields();
-                renderPortfolioTable();
-            }); return;
-        }
 
         resetActionSelectionFields();
         renderPortfolioTable();
@@ -869,7 +900,7 @@
 
     function executeScenarioLogicLocally(triggerString) {
         let scenarioKey = triggerString.split("_")[0]; let scenario = SCENARIO_DB[scenarioKey];
-        lastExecutedScenarioKey = scenarioKey; // Store instance signature for retroactive execution properties
+        lastExecutedScenarioKey = scenarioKey; 
         let instanceDeltaRegistry = {};
 
         ownedAssetInstances.forEach(inst => {
@@ -923,15 +954,13 @@
         openCustomModal("Scenario Notification", `Scenario executed inside room:\n[${scenarioKey}] ${scenario.title}\n\nYour numbers have updated automatically. Check Net Change flags.`, false);
     }
 
-    // Retroactive mitigation adjustment computation engine for A3 Diversification
     function recomputeScenarioWithA3(scenarioKey) {
         let scenario = SCENARIO_DB[scenarioKey];
         ownedAssetInstances.forEach(inst => {
-            // Check if this card code suffered a drop during the current active session
             if (scenario.rules.hasOwnProperty(inst.cardId) && scenario.rules[inst.cardId] < 0) {
                 let originalLoss = inst.netChange;
                 let mitigatedLoss = Math.floor(originalLoss * 0.5);
-                let recoveryAdjustment = mitigatedLoss - originalLoss; // Positive delta points back
+                let recoveryAdjustment = mitigatedLoss - originalLoss; 
                 
                 inst.currentValue += recoveryAdjustment;
                 inst.netChange = mitigatedLoss;
@@ -950,7 +979,6 @@
         ownedAssetInstances.forEach(i => { if (i.risk === 1) low++; if (i.risk === 2) mid++; if (i.risk === 3) high++; });
 
         let met = false;
-        // Updated investor goals targeting updated net worth calibrations
         if (chosenProfile.id === "Z1") met = (totVal >= 1100 && high >= 4);
         else if (chosenProfile.id === "Z2") met = (totVal >= 800 && ownedAssetInstances.length >= 5 && high === 0);
         else if (chosenProfile.id === "Z3") met = (ownedAssetInstances.length >= 6 && low >= 2 && mid >= 2 && high >= 2);

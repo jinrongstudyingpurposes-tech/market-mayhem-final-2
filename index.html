@@ -272,21 +272,23 @@
                     </table>
                 </div>
 
-                <h2 style="margin-top: 30px;">Active Room Transaction History Log</h2>
-                <div class="table-responsive-wrapper">
-                    <table class="overview-table" style="font-size: 0.85rem;">
-                        <thead>
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>User Context</th>
-                                <th>Activity Event Type</th>
-                                <th>Core Parameters Description</th>
-                            </tr>
-                        </thead>
-                        <tbody id="room-history-table-body">
-                            <tr><td colspan="4" style="text-align: center; color: #94a3b8; font-style: italic;">No session history captured yet. Connect to a server environment.</td></tr>
-                        </tbody>
-                    </table>
+                <div style="display: none;">
+                    <h2 style="margin-top: 30px;">Active Room Transaction History Log</h2>
+                    <div class="table-responsive-wrapper">
+                        <table class="overview-table" style="font-size: 0.85rem;">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>User Context</th>
+                                    <th>Activity Event Type</th>
+                                    <th>Core Parameters Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="room-history-table-body">
+                                <tr><td colspan="4" style="text-align: center; color: #94a3b8; font-style: italic;">No session history captured yet. Connect to a server environment.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -356,7 +358,6 @@
         </div>
         <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
             <button type="button" class="btn-success" style="min-width: 160px;" onclick="commitConfirmedTransaction(false)">Confirm &amp; Complete</button>
-            <button type="button" class="btn-success" style="background-color: var(--warning-color); color: black; min-width: 160px;" id="confirm-multi-btn" onclick="commitConfirmedTransaction(true)">Confirm &amp; Repeat Action</button>
             <button type="button" class="btn-secondary" style="min-width: 160px;" id="confirm-cancel-btn" onclick="showScreen('view-overview')">Cancel</button>
         </div>
     </div>
@@ -549,6 +550,15 @@
         "B4": { name: "iShares Asia High Yield Bond", risk: 3, cost: 100, growth: 8, sector: "Financial" }
     };
 
+    // Restored Core Global Scenario Registry
+    const SCENARIO_DB = {
+        "S1": { title: "Tech Sector Hypergrowth", desc: "A breakthrough in artificial intelligence triggers a massive rally across all tech assets.", rules: { "E1": 20, "E8": 50, "E9": 70, "E12": 80, "E13": 50, "E14": 15, "E16": 60 } },
+        "S2": { title: "Global Supply Chain Crisis", desc: "Energy prices surge, impacting production costs heavily across hardware and manufacturing fields.", rules: { "E15": 75, "F3": 40, "E1": -20, "E6": -15, "E10": -10 } },
+        "S3": { title: "Federal Rate Hike", desc: "Central banks increase interest rates sharply to curb high inflation levels.", rules: { "E4": 25, "E7": 30, "B1": -10, "B2": -5, "E15": -40, "E12": -35 } },
+        "S4": { title: "Healthcare Security Act", desc: "New federal subsidies push massive institutional capital shifts into medical portfolios.", rules: { "E3": 45 } },
+        "S5": { title: "Black Swan Liquidity Crunch", desc: "A unexpected economic slowdown impacts high-yielding equity lines uniformly.", rules: { "E12": -60, "E13": -50, "E15": -80, "E16": -45, "B4": -20 } }
+    };
+
     const ACTION_DB_INFO = {
         "A1":  "A1: Researching — Peek at the top 2 cards of the Market Scenario deck, then place them back on top in any order you choose.",
         "A2":  "A2: Dollar-Cost Averaging — Gain an additional +$50 cash from the bank at the end of each round for the next 3 rounds.",
@@ -630,6 +640,7 @@
 
     function populateScenarioOptions() {
         const select = document.getElementById("scenario-select");
+        select.innerHTML = '<option value="">-- Choose Active Scenario --</option>';
         for (let key in SCENARIO_DB) {
             let opt = document.createElement("option");
             opt.value = key; opt.innerText = `${key}: ${SCENARIO_DB[key].title}`;
@@ -697,6 +708,7 @@
         document.getElementById("lobby-status-pill").style.backgroundColor = "var(--success-color)";
         document.getElementById("room-code-banner").innerText = `Room: ${lobbyRoomCode} (${playerUsername})`;
 
+        populateScenarioOptions(); // Load and restore visual selection items cleanly
         showScreen("view-setup");
 
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}`).update({
@@ -730,7 +742,6 @@
                 if (remoteMods.marketRumourSector) { activePlayerModifiers.marketRumourSector = remoteMods.marketRumourSector; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/marketRumourSector`).set(""); openCustomModal("Target Alert", `Another player hit you with Market Rumour on sector: ${remoteMods.marketRumourSector}! (A16 applied)`, false); triggeredSound = true; }
                 if (remoteMods.textPayload) { openCustomModal("Target Alert", `You have been targeted by an opponent card effect:\n\n"${remoteMods.textPayload}"`, false); rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/textPayload`).set(""); triggeredSound = true; }
                 
-                // 🎯 VICTIM DEVICE-ONLY INTERCEPT PATHWAY
                 if (triggeredSound || remoteMods.randomNonceTrigger > 0) {
                     let targetIdx = undefined;
                     if (remoteMods.sharedSoundIndex !== undefined && remoteMods.sharedSoundIndex >= 0) {
@@ -913,7 +924,6 @@
         document.getElementById("confirm-asset-details").innerText = `[${cardId}] ${template.name} (${template.sector} Sector)`;
         document.getElementById("confirm-price-readout").innerText = `$${currentMarketPrice}`;
         document.getElementById("confirm-price-readout").style.color = "var(--warning-color)";
-        document.getElementById("confirm-multi-btn").innerText = "Confirm & Repeat Action";
         showScreen("view-confirm-transaction");
     }
 
@@ -944,11 +954,7 @@
         }
         document.getElementById("inv-asset").innerText = cardId;
         savePlayerSession();
-        if (wantsToRepeat && originalType === "BUY") {
-            document.getElementById("invoice-return-btn").setAttribute("onclick", `returnToOverviewAfterInvoice(); stageBuyConfirmation('${cardId}');`);
-        } else {
-            document.getElementById("invoice-return-btn").setAttribute("onclick", "returnToOverviewAfterInvoice()");
-        }
+        document.getElementById("invoice-return-btn").setAttribute("onclick", "returnToOverviewAfterInvoice()");
         showScreen("view-invoice");
     }
 
@@ -981,7 +987,6 @@
             let targetedPlayer = document.getElementById("target-player-select").value;
             if (!targetedPlayer) { openCustomModal("Selection Error", "No other opponent player registered.", false); return; }
             
-            // 🎯 FIXED: Choose the sound index locally but DO NOT play it here on the attacker's screen
             let chosenIndex = Math.floor(Math.random() * YOUTUBE_VIDEO_IDS.length);
 
             if (cardKey === "A16") {

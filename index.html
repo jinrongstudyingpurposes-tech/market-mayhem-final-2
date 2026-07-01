@@ -49,8 +49,9 @@
         input:focus, select:focus { border-color: var(--accent-color); outline: none; }
 
         button { width: 100%; background: var(--accent-color); color: white; border: none; padding: 14px 22px; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: opacity 0.2s, transform 0.1s; text-align: center; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        button:hover { opacity: 0.9; }
-        button:active { transform: scale(0.99); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:hover:not(:disabled) { opacity: 0.9; }
+        button:active:not(:disabled) { transform: scale(0.99); }
         .btn-danger { background: var(--danger-color); }
         .btn-success { background: var(--success-color); }
         .btn-secondary { background: #475569; }
@@ -84,7 +85,6 @@
             background-color: #1e293b !important;
         }
 
-        /* Mobile Sticky Freeze First Column Positioning Overrides */
         .sticky-col {
             position: sticky !important;
             left: 0 !important;
@@ -148,6 +148,10 @@
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
         .modal-footer button { width: auto; padding: 10px 20px; }
 
+        .radio-group { display: flex; gap: 20px; justify-content: center; margin-bottom: 15px; background: #0f172a; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; }
+        .radio-label { display: flex; align-items: center; gap: 8px; color: #cbd5e1; cursor: pointer; font-weight: normal; }
+        .radio-label input { width: auto; padding: 0; cursor: pointer; }
+
         @media (min-width: 768px) {
             body { padding: 24px; }
             h1 { font-size: 2.4rem; }
@@ -179,7 +183,13 @@
             <input type="text" id="input-lobby-code" placeholder="e.g. 5005" style="text-transform: uppercase; font-family: monospace; letter-spacing: 2px; text-align: center; font-size: 1.4rem; max-width: 350px; margin: 0 auto; display: block; margin-bottom: 15px;">
             
             <label for="input-user-name">Your Game Username:</label>
-            <input type="text" id="input-user-name" placeholder="Enter name or initials" style="text-align: center; font-size: 1.2rem; max-width: 350px; margin: 0 auto; display: block;">
+            <input type="text" id="input-user-name" placeholder="Enter name or initials" style="text-align: center; font-size: 1.2rem; max-width: 350px; margin: 0 auto; display: block; margin-bottom: 15px;">
+            
+            <label>Select Game Mode:</label>
+            <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="game-mode" value="normal" checked onchange="toggleGameModeData(this.value)"> Normal Variant</label>
+                <label class="radio-label"><input type="radio" name="game-mode" value="quickplay" onchange="toggleGameModeData(this.value)"> Quickplay Variant</label>
+            </div>
         </div>
         <div style="text-align: center; margin-top: 10px;">
             <button onclick="connectToLobbyRoom()">Connect to Shared Room</button>
@@ -191,9 +201,9 @@
         <div class="form-group">
             <label for="player-profile-select">Profile Identity:</label>
             <select id="player-profile-select">
-                <option value="Z1">Z1 - The Risky Rizzler (Aggressive Risk-Taker)</option>
-                <option value="Z2">Z2 - The Safe Skibidi (Conservative Investor)</option>
-                <option value="Z3">Z3 - The Balanced Baller (Balanced Framework)</option>
+                <option value="Z1">Z1 - The Risky Rizzler</option>
+                <option value="Z2">Z2 - The Safe Skibidi</option>
+                <option value="Z3">Z3 - The Balanced Baller</option>
             </select>
         </div>
         <button onclick="initializeTrackerDashboard()">Launch Tracker Dashboard</button>
@@ -202,8 +212,6 @@
     <div id="view-overview" class="view-panel">
         <div class="adaptive-nav-bar">
             <div class="nav-buttons-cluster">
-                <button class="btn-success" onclick="openBuyMarketScreen()">Buy Asset</button>
-                <button class="btn-danger" onclick="openSellPortfolioScreen()">Sell Asset</button>
                 <button class="btn-secondary" onclick="backToProfileSelection()">Back to Profiles</button>
                 <button class="btn-danger" style="background-color:#991b1b;" onclick="triggerEndGameDiscard()">End Game</button>
             </div>
@@ -227,9 +235,27 @@
                                 <th>Bought Price</th>
                                 <th>Current Value</th>
                                 <th>Net Change</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="portfolio-table-body"></tbody>
+                    </table>
+                </div>
+
+                <h2 style="margin-top: 30px;">Available Market Assets (Buy Board)</h2>
+                <div class="table-responsive-wrapper">
+                    <table class="overview-table">
+                        <thead>
+                            <tr>
+                                <th class="sticky-col">Asset ID</th>
+                                <th>Asset Name</th>
+                                <th>Risk Tier</th>
+                                <th>Asset Sector</th>
+                                <th>Market Value (Cost)</th>
+                                <th>Purchase Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="buy-market-table-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -291,50 +317,6 @@
         </div>
     </div>
 
-    <div id="view-buy-market" class="view-panel">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h2>Available Market Assets (Buy Board)</h2>
-            <button class="btn-secondary" style="width: auto;" onclick="showScreen('view-overview')">Back to Overview</button>
-        </div>
-        <div class="table-responsive-wrapper">
-            <table class="overview-table">
-                <thead>
-                    <tr>
-                        <th class="sticky-col">Asset ID</th>
-                        <th>Asset Name</th>
-                        <th>Risk Tier</th>
-                        <th>Asset Sector</th>
-                        <th>Market Value (Cost)</th>
-                        <th>Purchase Action</th>
-                    </tr>
-                </thead>
-                <tbody id="buy-market-table-body"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="view-sell-portfolio" class="view-panel">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h2>Your Portfolio Holdings (Sell Board)</h2>
-            <button class="btn-secondary" style="width: auto;" onclick="showScreen('view-overview')">Back to Overview</button>
-        </div>
-        <div class="table-responsive-wrapper">
-            <table class="overview-table">
-                <thead>
-                    <tr>
-                        <th class="sticky-col">Instance ID</th>
-                        <th>Asset ID</th>
-                        <th>Asset Name</th>
-                        <th>Risk Tier</th>
-                        <th>Your Stacked Card Value</th>
-                        <th>Liquidation Action</th>
-                    </tr>
-                </thead>
-                <tbody id="sell-portfolio-table-body"></tbody>
-            </table>
-        </div>
-    </div>
-
     <div id="view-confirm-transaction" class="view-panel">
         <h2>Confirm Financial Action</h2>
         <div class="confirm-preview-box">
@@ -344,7 +326,7 @@
         </div>
         <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
             <button class="btn-success" style="min-width: 160px;" onclick="commitConfirmedTransaction(false)">Confirm &amp; Complete</button>
-            <button class="btn-success" style="background-color: var(--warning-color); color: black; min-width: 160px;" id="confirm-multi-btn" onclick="commitConfirmedTransaction(true)">Confirm &amp; Buy Another</button>
+            <button class="btn-success" style="background-color: var(--warning-color); color: black; min-width: 160px;" id="confirm-multi-btn" onclick="commitConfirmedTransaction(true)">Confirm &amp; Repeat</button>
             <button class="btn-secondary" style="min-width: 160px;" id="confirm-cancel-btn" onclick="showScreen('view-overview')">Cancel</button>
         </div>
     </div>
@@ -385,6 +367,16 @@
     </div>
 </div>
 
+<div id="justification-modal-overlay" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header" style="color: var(--warning-color);">Market Event Breakdown &amp; Analysis</div>
+        <div id="justification-modal-body" class="modal-body" style="max-height: 300px; overflow-y: auto;"></div>
+        <div class="modal-footer">
+            <button id="justification-modal-close-btn" class="btn-success" disabled>Wait (10s)</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const firebaseConfig = {
         databaseURL: "https://market-mayhem-tracker-default-rtdb.asia-southeast1.firebasedatabase.app/"
@@ -393,11 +385,29 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const rtdb = firebase.database();
 
-    const PROFILE_DB = {
-        "Z1": { id: "Z1", name: "The Risky Rizzler (Risk-Taker)", desc: "Goal: Total Portfolio Assets Value >= $1,100 AND simultaneously hold at least 4 High-Risk (🔴) assets." },
-        "Z2": { id: "Z2", name: "The Safe Skibidi (Conservative)", desc: "Goal: Total Portfolio Assets Value >= $800, collection of at least 5 assets with ZERO High-Risk (🔴) assets." },
-        "Z3": { id: "Z3", name: "The Balanced Baller (Balanced)", desc: "Goal: Own exactly 2 Low, 2 Mid, and 2 High risk items and accumulate baseline card passive yields >= $400." }
+    const MP3_SOUNDS = [
+        "http://googleusercontent.com/file_content/0",
+        "http://googleusercontent.com/file_content/1",
+        "http://googleusercontent.com/file_content/2",
+        "http://googleusercontent.com/file_content/3"
+    ];
+
+    let currentGameMode = "normal";
+
+    const PROFILE_DB_VARIANTS = {
+        "normal": {
+            "Z1": { id: "Z1", name: "The Risky Rizzler (Risk-Taker)", desc: "Goal: Total Portfolio Assets Value >= $1,100 AND simultaneously hold at least 4 High-Risk (🔴) assets." },
+            "Z2": { id: "Z2", name: "The Safe Skibidi (Conservative)", desc: "Goal: Total Portfolio Assets Value >= $800, collection of at least 5 assets with ZERO High-Risk (🔴) assets." },
+            "Z3": { id: "Z3", name: "The Balanced Baller (Balanced)", desc: "Goal: Own AT LEAST 2 Low, 2 Mid, and 2 High risk items and accumulate baseline card passive yields >= $400." }
+        },
+        "quickplay": {
+            "Z1": { id: "Z1", name: "The Risky Rizzler (Risk-Taker)", desc: "Goal: Total Portfolio Assets Value >= $800 AND simultaneously hold at least 3 High-Risk (🔴) assets." },
+            "Z2": { id: "Z2", name: "The Safe Skibidi (Conservative)", desc: "Goal: Total Portfolio Assets Value >= $700, collection of at least 5 assets with ZERO High-Risk (🔴) assets." },
+            "Z3": { id: "Z3", name: "The Balanced Baller (Balanced)", desc: "Goal: Own at least 1 Low, 1 Mid, and 1 High risk items and accumulate baseline card passive yields >= $200." }
+        }
     };
+
+    let PROFILE_DB = PROFILE_DB_VARIANTS["normal"];
 
     const ASSET_TEMPLATES = {
         "E1": { name: "ST Engineering", risk: 1, cost: 110, growth: 10, sector: "Tech" },
@@ -436,7 +446,7 @@
     const SCENARIO_DB = {
         "S1": { title: "US Fed Reserve Rate Hikes", rules: { "B1": -10, "P1": 10, "P2": 10, "P5": 10, "E7": -30, "E8": -30, "E9": -30, "E10": -30, "E11": -30, "B2": -10, "B3": -10, "F2": -25, "P3": -20, "P6": -20, "P7": -20, "E12": -65, "E13": -65, "E15": -65, "E16": -65, "E14": -15, "P4": -25, "P8": -25, "F3": -45 }, desc: "Low Risk bonds grow. Tech, Growth equities, and mixed portfolios crash heavily due to aggressive QT." },
         "S2": { title: "China Economic Stimulus", rules: { "E1": 10, "E4": 10, "F2": 30, "P6": 35, "B2": 15, "B3": 15, "E15": 50, "E16": 50, "B4": 25, "F3": 45 }, desc: "Beijing injects 4 trillion yuan. Regional Asian portfolios, corporate bonds, and hardware supply nodes surge." },
-        "S3": { title: "Global Recession Fear", rules: { "P1": 15, "P5": 15, "E3": 15, "E5": 15, "E6": 15, "F2": -40, "E8": -30, "E9": -30, "E10": -30, "E11": -30, "E12": -70, "E13": -70, "E15": -70, "E16": -70, "E14": -20, "F1": 60 }, desc: "Stagflation scare. Growth items drop while physical Gold safe havens (F1) and standard staple equities move up." },
+        "S3": { title: "Global Recession Fear", rules: { "P1": 15, "P5": 15, "E3": 15, "E5": 15, "E6": 15, F2: -40, "E8": -30, "E9": -30, "E10": -30, "E11": -30, "E12": -70, "E13": -70, "E15": -70, "E16": -70, "E14": -20, "F1": 60 }, desc: "Stagflation scare. Growth items drop while physical Gold safe havens (F1) and standard staple equities move up." },
         "S4": { title: "Global Interest Rate Cuts", rules: { "B1": 15, "P1": -10, "P5": -10, "E8": 45, "E9": 45, "E10": 45, "F2": 40, "E12": 75, "E13": 75, "E16": 75, "E14": 20, "E15": 20, "P4": 30, "P8": 30 }, desc: "Lockdowns force emergency cuts nearing 0%. Cash yields contract while software architectures and hyper-growth options pop." },
         "S5": { title: "Supply Chain Chaos", rules: { "E1": -10, "E8": -35, "E10": -35, "E11": -20, "E15": -85, "E16": -40 }, desc: "Semiconductor bottlenecks heavily penalize tech hardware lines, electronics infrastructures, and EV manufacturing pipelines." },
         "S6": { title: "Inflation Shock", rules: { "E3": 10, "E5": 10, "E6": 10, "B1": -5, "E10": -30, "E11": -30, "F2": -40, "E13": -50, "E16": -45, "F1": 50 }, desc: "Valuations face compression. Consumer staple monopolies maintain strength while Gold hedges fiat debasement." },
@@ -489,6 +499,21 @@
         initializeLocalMarketPrices();
     };
 
+    function toggleGameModeData(mode) {
+        currentGameMode = mode;
+        PROFILE_DB = PROFILE_DB_VARIANTS[mode];
+    }
+
+    function playRandomTargetSound() {
+        try {
+            let randomIndex = Math.floor(Math.random() * MP3_SOUNDS.length);
+            let audio = new Audio(MP3_SOUNDS[randomIndex]);
+            audio.play();
+        } catch(e) {
+            console.log("Audio playback failed or blocked: ", e);
+        }
+    }
+
     function populateScenarioOptions() {
         const select = document.getElementById("scenario-select");
         for (let key in SCENARIO_DB) {
@@ -506,6 +531,7 @@
         document.querySelectorAll('.view-panel').forEach(view => view.classList.remove('active-view'));
         document.getElementById(screenId).classList.add('active-view');
         renderPortfolioTable();
+        renderBuyMarketBoard();
     }
 
     function savePlayerSession() {
@@ -558,11 +584,16 @@
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers`).on('value', (snap) => {
             if (snap.exists()) {
                 let remoteMods = snap.val();
-                if (remoteMods.badAdvice) { activePlayerModifiers.badAdvice = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/badAdvice`).set(false); openCustomModal("Target Alert", "Another player hit you with Bad Advice! (A11 applied)", false); }
-                if (remoteMods.overconfidence) { activePlayerModifiers.overconfidence = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/overconfidence`).set(false); openCustomModal("Target Alert", "Another player hit you with Overconfidence! (A12 applied)", false); }
-                if (remoteMods.greed) { activePlayerModifiers.greed = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/greed`).set(false); openCustomModal("Target Alert", "Another player hit you with Greed! (A15 applied)", false); }
-                if (remoteMods.marketRumourSector) { activePlayerModifiers.marketRumourSector = remoteMods.marketRumourSector; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/marketRumourSector`).set(""); openCustomModal("Target Alert", `Another player hit you with Market Rumour on sector: ${remoteMods.marketRumourSector}! (A16 applied)`, false); }
-                if (remoteMods.textPayload) { openCustomModal("Target Alert", `You have been targeted by an opponent card effect:\n\n"${remoteMods.textPayload}"`, false); rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/textPayload`).set(""); }
+                let triggered = false;
+                if (remoteMods.badAdvice) { activePlayerModifiers.badAdvice = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/badAdvice`).set(false); openCustomModal("Target Alert", "Another player hit you with Bad Advice! (A11 applied)", false); triggered = true; }
+                if (remoteMods.overconfidence) { activePlayerModifiers.overconfidence = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/overconfidence`).set(false); openCustomModal("Target Alert", "Another player hit you with Overconfidence! (A12 applied)", false); triggered = true; }
+                if (remoteMods.greed) { activePlayerModifiers.greed = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/greed`).set(false); openCustomModal("Target Alert", "Another player hit you with Greed! (A15 applied)", false); triggered = true; }
+                if (remoteMods.marketRumourSector) { activePlayerModifiers.marketRumourSector = remoteMods.marketRumourSector; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/marketRumourSector`).set(""); openCustomModal("Target Alert", `Another player hit you with Market Rumour on sector: ${remoteMods.marketRumourSector}! (A16 applied)`, false); triggered = true; }
+                if (remoteMods.textPayload) { openCustomModal("Target Alert", `You have been targeted by an opponent card effect:\n\n"${remoteMods.textPayload}"`, false); rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/textPayload`).set(""); triggered = true; }
+                
+                if (triggered) {
+                    playRandomTargetSound();
+                }
                 renderPortfolioTable();
             }
         });
@@ -575,6 +606,7 @@
             if (snap.exists()) {
                 globalMarketPrices = snap.val();
                 renderPortfolioTable();
+                renderBuyMarketBoard();
                 checkGoalCompliance();
             }
         });
@@ -618,6 +650,7 @@
         document.getElementById("profile-text-desc").innerText = chosenProfile.desc;
         
         renderPortfolioTable();
+        renderBuyMarketBoard();
         checkGoalCompliance();
         showScreen("view-overview");
     }
@@ -702,18 +735,21 @@
                     <td class="${buyPriceClass}">$${inst.boughtPrice}</td>
                     <td style="font-size: 1.1rem; font-weight: bold; color: var(--success-color);">$${inst.currentValue}</td>
                     <td>${changeCell}</td>
+                    <td><button class="btn-danger" style="padding:6px 12px; font-size:0.9rem; width:auto;" onclick="stageSellConfirmation(${inst.instanceId})">Sell</button></td>
                 </tr>
             `;
         });
 
         if (ownedAssetInstances.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94a3b8; font-style: italic; background-color: #0f172a !important;">No investment assets currently held. Click Buy Asset above to explore market items.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #94a3b8; font-style: italic; background-color: #0f172a !important;">No investment assets currently held. Browse the board below to register assets.</td></tr>`;
         }
         document.getElementById("total-portfolio-display").innerText = `$${netTotalPortfolioValue}`;
     }
 
-    function openBuyMarketScreen() {
-        const tbody = document.getElementById("buy-market-table-body"); tbody.innerHTML = "";
+    function renderBuyMarketBoard() {
+        const tbody = document.getElementById("buy-market-table-body");
+        if(!tbody) return;
+        tbody.innerHTML = "";
         for (let code in ASSET_TEMPLATES) {
             let template = ASSET_TEMPLATES[code];
             let currentMarketCostPrice = globalMarketPrices[code] || template.cost; 
@@ -724,11 +760,10 @@
                     <td><span class="risk-badge risk-${template.risk}">Risk ${template.risk}</span></td>
                     <td>${template.sector}</td>
                     <td style="font-size: 1.1rem; font-weight: bold; color: var(--warning-color);">$${currentMarketCostPrice}</td>
-                    <td><button class="btn-success" style="padding:6px 12px; font-size:0.9rem; width:auto;" onclick="stageBuyConfirmation('${code}')">Select Buy</button></td>
+                    <td><button class="btn-success" style="padding:6px 12px; font-size:0.9rem; width:auto;" onclick="stageBuyConfirmation('${code}')">Buy</button></td>
                 </tr>
             `;
         }
-        showScreen("view-buy-market");
     }
 
     function stageBuyConfirmation(cardId) {
@@ -739,30 +774,9 @@
         document.getElementById("confirm-price-readout").innerText = `$${currentMarketPrice}`;
         document.getElementById("confirm-price-readout").style.color = "var(--warning-color)";
         
-        // Correctly updates specific multiple transaction loop copy text
-        document.getElementById("confirm-multi-btn").innerText = "Confirm & Buy Another";
-        document.getElementById("confirm-cancel-btn").setAttribute("onclick", "openBuyMarketScreen()");
+        document.getElementById("confirm-multi-btn").innerText = "Confirm & Repeat Action";
+        document.getElementById("confirm-cancel-btn").setAttribute("onclick", "showScreen('view-overview')");
         showScreen("view-confirm-transaction");
-    }
-
-    function openSellPortfolioScreen() {
-        const tbody = document.getElementById("sell-portfolio-table-body"); tbody.innerHTML = "";
-        if (ownedAssetInstances.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; font-style: italic; padding: 20px 10px; background-color: #0f172a !important;">Your portfolio contains no holdings to sell.</td></tr>`;
-        }
-        ownedAssetInstances.forEach(inst => {
-            tbody.innerHTML += `
-                <tr>
-                    <td class="sticky-col"><small style="font-family:monospace; color:#94a3b8;">#${inst.instanceId}</small></td>
-                    <td><strong>${inst.cardId}</strong></td>
-                    <td>${inst.name}</td>
-                    <td><span class="risk-badge risk-${inst.risk}">Risk ${inst.risk}</span></td>
-                    <td style="font-size: 1.1rem; font-weight: bold; color: var(--success-color);">$${inst.currentValue}</td>
-                    <td><button class="btn-danger" style="padding:6px 12px; font-size:0.9rem; width:auto;" onclick="stageSellConfirmation(${inst.instanceId})">Select Sell</button></td>
-                </tr>
-            `;
-        });
-        showScreen("view-sell-portfolio");
     }
 
     function stageSellConfirmation(instanceId) {
@@ -773,21 +787,23 @@
         document.getElementById("confirm-price-readout").innerText = `$${inst.currentValue}`;
         document.getElementById("confirm-price-readout").style.color = "var(--success-color)";
         
-        // Correctly updates button label copy text specifically for cell contexts
-        document.getElementById("confirm-multi-btn").innerText = "Confirm & Sell Another";
-        document.getElementById("confirm-cancel-btn").setAttribute("onclick", "openSellPortfolioScreen()");
+        document.getElementById("confirm-multi-btn").innerText = "Confirm & Repeat Action";
+        document.getElementById("confirm-cancel-btn").setAttribute("onclick", "showScreen('view-overview')");
         showScreen("view-confirm-transaction");
     }
 
-    function commitConfirmedTransaction(wantsToBuyAnother) {
+    function commitConfirmedTransaction(wantsToRepeat) {
         let cardId = activeTransactionStaging.cardId; let price = activeTransactionStaging.executionPrice;
-        if (activeTransactionStaging.type === "BUY") {
+        let originalType = activeTransactionStaging.type;
+        let originalInstanceId = activeTransactionStaging.instanceId;
+
+        if (originalType === "BUY") {
             ownedAssetInstances.push({ instanceId: instanceIdCounter++, cardId: cardId, name: ASSET_TEMPLATES[cardId].name, risk: ASSET_TEMPLATES[cardId].risk, boughtPrice: price, currentValue: price, netChange: 0, sector: ASSET_TEMPLATES[cardId].sector, tags: { immune: false, doubleGrowth: false } });
             document.getElementById("inv-type").innerText = "ASSET PURCHASE SECURED (BUY)";
             document.getElementById("inv-cash-flow").innerText = `-$${price}`; document.getElementById("inv-cash-flow").style.color = "var(--danger-color)";
             document.getElementById("inv-instruction").innerText = `BANK NOTIFICATION: Pay $${price} cash to banker. Tokens go UNDER the physical layout card.`;
         } else {
-            let targetIdx = ownedAssetInstances.findIndex(x => x.instanceId === activeTransactionStaging.instanceId); if (targetIdx !== -1) ownedAssetInstances.splice(targetIdx, 1);
+            let targetIdx = ownedAssetInstances.findIndex(x => x.instanceId === originalInstanceId); if (targetIdx !== -1) ownedAssetInstances.splice(targetIdx, 1);
             document.getElementById("inv-type").innerText = "ASSET PORTFOLIO LIQUIDATION (SELL)";
             document.getElementById("inv-cash-flow").innerText = `+$${price}`; document.getElementById("inv-cash-flow").style.color = "var(--success-color)";
             document.getElementById("inv-instruction").innerText = `BANK NOTIFICATION: Return physical card layout. Banker pays player back $${price} from card cache notes.`;
@@ -796,12 +812,11 @@
         
         savePlayerSession();
 
-        // Correctly filters routing loop to remain inside respective panel states upon invoice closing
-        if (wantsToBuyAnother) {
-            if (activeTransactionStaging.type === "BUY") {
-                document.getElementById("invoice-return-btn").setAttribute("onclick", "openBuyMarketScreen(); renderPortfolioTable(); checkGoalCompliance();");
+        if (wantsToRepeat) {
+            if (originalType === "BUY") {
+                document.getElementById("invoice-return-btn").setAttribute("onclick", `returnToOverviewAfterInvoice(); stageBuyConfirmation('${cardId}');`);
             } else {
-                document.getElementById("invoice-return-btn").setAttribute("onclick", "openSellPortfolioScreen(); renderPortfolioTable(); checkGoalCompliance();");
+                document.getElementById("invoice-return-btn").setAttribute("onclick", "returnToOverviewAfterInvoice();");
             }
         } else {
             document.getElementById("invoice-return-btn").setAttribute("onclick", "returnToOverviewAfterInvoice()");
@@ -810,7 +825,7 @@
         showScreen("view-invoice");
     }
 
-    function returnToOverviewAfterInvoice() { renderPortfolioTable(); checkGoalCompliance(); showScreen("view-overview"); }
+    function returnToOverviewAfterInvoice() { renderPortfolioTable(); renderBuyMarketBoard(); checkGoalCompliance(); showScreen("view-overview"); }
 
     function openInputModal(title, body, placeholder, onConfirm) {
         document.getElementById("input-modal-title").innerText = title;
@@ -932,8 +947,6 @@
         renderPortfolioTable();
     }
 
-    function renameActionTitles() { /* Legacy fallback method placeholder */ }
-
     function triggerScenarioConfirmation() {
         let key = document.getElementById("scenario-select").value;
         if (!key) { openCustomModal("Missing Selection", "Please select an active scenario card first.", false); return; }
@@ -955,6 +968,57 @@
                 activeScenarioTrigger: key + "_" + Date.now()
             });
         });
+    }
+
+    function showJustificationPopup(scenarioKey) {
+        let scenario = SCENARIO_DB[scenarioKey];
+        let modalBody = document.getElementById("justification-modal-body");
+        let closeBtn = document.getElementById("justification-modal-close-btn");
+        
+        let htmlContent = `<div style="margin-bottom:12px;"><strong>Global Economic Shifter:</strong> ${scenario.title}</div>`;
+        let standardOrganicGrowthOccurred = true;
+        
+        let internalExplanationLogs = [];
+        
+        ownedAssetInstances.forEach(inst => {
+            if (scenario.rules.hasOwnProperty(inst.cardId)) {
+                standardOrganicGrowthOccurred = false;
+                let delta = scenario.rules[inst.cardId];
+                let directionText = delta >= 0 ? "boosted" : "impacted";
+                internalExplanationLogs.push(`<li><strong>[${inst.cardId}] ${inst.name}:</strong> Explicitly ${directionText} ($${delta >= 0 ? '+' : ''}${delta}) due to the market conditions described in the scenario text: <em>"${scenario.desc}"</em>.</li>`);
+            }
+        });
+
+        if (standardOrganicGrowthOccurred || internalExplanationLogs.length === 0) {
+            htmlContent += `<p style="color:var(--success-color); font-weight:600;">All owned positions incremented cleanly from organic business expansion forces this cycle.</p>`;
+        } else {
+            htmlContent += `<p style="margin-bottom:8px; color:var(--warning-color); font-weight:600;">The structural event shifts below impacted your asset classes directly:</p>`;
+            htmlContent += `<ul style="padding-left:18px; line-height:1.5;">${internalExplanationLogs.join("")}</ul>`;
+        }
+
+        modalBody.innerHTML = htmlContent;
+        
+        closeBtn.disabled = true;
+        let count = 10;
+        closeBtn.innerText = `Understand (${count}s)`;
+        
+        const overlay = document.getElementById("justification-modal-overlay");
+        overlay.classList.add("active-modal");
+        
+        let timer = setInterval(() => {
+            count--;
+            if (count <= 0) {
+                clearInterval(timer);
+                closeBtn.disabled = false;
+                closeBtn.innerText = "Close Breakdown";
+            } else {
+                closeBtn.innerText = `Understand (${count}s)`;
+            }
+        }, 1000);
+        
+        closeBtn.onclick = function() {
+            overlay.classList.remove("active-modal");
+        };
     }
 
     function executeScenarioLogicLocally(triggerString) {
@@ -1009,9 +1073,12 @@
 
         savePlayerSession();
         renderPortfolioTable();
+        renderBuyMarketBoard();
         checkGoalCompliance();
 
-        openCustomModal("Scenario Notification", `Scenario executed inside room:\n[${scenarioKey}] ${scenario.title}\n\nYour numbers have updated automatically. Check Net Change flags.`, false);
+        openCustomModal("Scenario Notification", `Scenario executed inside room:\n[${scenarioKey}] ${scenario.title}\n\nYour numbers have updated automatically. Check Net Change flags.`, false, () => {
+            showJustificationPopup(scenarioKey);
+        });
     }
 
     function recomputeScenarioWithA3(scenarioKey) {
@@ -1030,6 +1097,7 @@
         activePlayerModifiers.diversification = false;
         savePlayerSession();
         renderPortfolioTable();
+        renderBuyMarketBoard();
         checkGoalCompliance();
     }
 
@@ -1040,9 +1108,15 @@
         ownedAssetInstances.forEach(i => { if (i.risk === 1) low++; if (i.risk === 2) mid++; if (i.risk === 3) high++; });
 
         let met = false;
-        if (chosenProfile.id === "Z1") met = (totVal >= 1100 && high >= 4);
-        else if (chosenProfile.id === "Z2") met = (totVal >= 800 && ownedAssetInstances.length >= 5 && high === 0);
-        else if (chosenProfile.id === "Z3") met = (ownedAssetInstances.length >= 6 && low >= 2 && mid >= 2 && high >= 2);
+        if (currentGameMode === "normal") {
+            if (chosenProfile.id === "Z1") met = (totVal >= 1100 && high >= 4);
+            else if (chosenProfile.id === "Z2") met = (totVal >= 800 && ownedAssetInstances.length >= 5 && high === 0);
+            else if (chosenProfile.id === "Z3") met = (low >= 2 && mid >= 2 && high >= 2); 
+        } else if (currentGameMode === "quickplay") {
+            if (chosenProfile.id === "Z1") met = (totVal >= 800 && high >= 3);
+            else if (chosenProfile.id === "Z2") met = (totVal >= 700 && ownedAssetInstances.length >= 5 && high === 0);
+            else if (chosenProfile.id === "Z3") met = (low >= 1 && mid >= 1 && high >= 1); 
+        }
 
         const ind = document.getElementById("goal-status-box");
         if (met) {

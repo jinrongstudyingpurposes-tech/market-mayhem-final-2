@@ -474,12 +474,11 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const rtdb = firebase.database();
 
-    // TARGET EXPLICIT YOUTUBE VIDEO STRING ID MAPS (Drawn directly from your links)
-    const YOUTUBE_VIDEO_IDS = [
-        "CQeezCdF4mk", // Bruh
-        "D2_r4q2imnQ", // Fart
-        "7pLHJBxhO9o", // Sad Trombone
-        "2J_LnGdDl5g"  // Aughhh
+    const MP3_SOUNDS = [
+        "bruh.mp3",
+        "fart.mp3",
+        "sad_trombone.mp3",
+        "aughhh.mp3"
     ];
 
     let currentGameMode = "normal";
@@ -536,7 +535,7 @@
     const SCENARIO_DB = {
         "S1": { title: "US Fed Reserve Rate Hikes", rules: { "B1": -10, "P1": 10, "P2": 10, "P5": 10, "E7": -30, "E8": -30, "E9": -30, "E10": -30, "E11": -30, "B2": -10, "B3": -10, "F2": -25, "P3": -20, "P6": -20, "P7": -20, "E12": -65, "E13": -65, "E15": -65, "E16": -65, "E14": -15, "P4": -25, "P8": -25, "F3": -45 }, desc: "Low Risk bonds grow. Tech, Growth equities, and mixed portfolios crash heavily due to aggressive QT." },
         "S2": { title: "China Economic Stimulus", rules: { "E1": 10, "E4": 10, "F2": 30, "P6": 35, "B2": 15, "B3": 15, "E15": 50, "E16": 50, "B4": 25, "F3": 45 }, desc: "Beijing injects 4 trillion yuan. Regional Asian portfolios, corporate bonds, and hardware supply nodes surge." },
-        "S3": { title: "Global Recession Fear", rules: { "P1": 15, "P5": 15, "E3": 15, "E5": 15, "E6": 15, "F2": -40, "E8": -30, "E9": -30, "E10": -30, "E11": -30, "E12": -70, "E13": -70, "E15": -70, "E16": -70, "E14": -20, "F1": 60 }, desc: "Stagflation scare. Growth items drop while physical Gold safe havens (F1) and standard staple equities move up." },
+        "S3": { title: "Global Recession Fear", rules: { "P1": 15, "P5": 15, "E3": 15, "E5": 15, "E6": 15, F2: -40, "E8": -30, "E9": -30, "E10": -30, "E11": -30, "E12": -70, "E13": -70, "E15": -70, "E16": -70, "E14": -20, "F1": 60 }, desc: "Stagflation scare. Growth items drop while physical Gold safe havens (F1) and standard staple equities move up." },
         "S4": { title: "Global Interest Rate Cuts", rules: { "B1": 15, "P1": -10, "P5": -10, "E8": 45, "E9": 45, "E10": 45, "F2": 40, "E12": 75, "E13": 75, "E16": 75, "E14": 20, "E15": 20, "P4": 30, "P8": 30 }, desc: "Lockdowns force emergency cuts nearing 0%. Cash yields contract while software architectures and hyper-growth options pop." },
         "S5": { title: "Supply Chain Chaos", rules: { "E1": -10, "E8": -35, "E10": -35, "E11": -20, "E15": -85, "E16": -40 }, desc: "Semiconductor bottlenecks heavily penalize tech hardware lines, electronics infrastructures, and EV manufacturing pipelines." },
         "S6": { title: "Inflation Shock", rules: { "E3": 10, "E5": 10, "E6": 10, "B1": -5, "E10": -30, "E11": -30, "F2": -40, "E13": -50, "E16": -45, "F1": 50 }, desc: "Valuations face compression. Consumer staple monopolies maintain strength while Gold hedges fiat debasement." },
@@ -616,13 +615,10 @@
         });
     }
 
-    // 🚀 [YOUTUBE NETWORK SYNC ARCHITECTURE]: Streams exact audio frames natively over any network node layer
     function broadcastNetworkYouTubeAudio(specificIndex) {
         try {
             let selectedIndex = (specificIndex !== undefined) ? specificIndex : Math.floor(Math.random() * YOUTUBE_VIDEO_IDS.length);
             let targetVideoId = YOUTUBE_VIDEO_IDS[selectedIndex];
-            
-            // Render a localized audio injection embed container
             const audioContainer = document.getElementById("mm-network-audio-bridge");
             if (audioContainer) {
                 audioContainer.innerHTML = `<iframe width="200" height="200" src="https://www.youtube.com/embed/${targetVideoId}?autoplay=1&controls=0" allow="autoplay"></iframe>`;
@@ -716,7 +712,6 @@
             }
         });
 
-        // MULTI-NETWORK STREAMING SYNC PIPELINE
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers`).on('value', (snap) => {
             if (snap.exists()) {
                 let remoteMods = snap.val();
@@ -777,6 +772,28 @@
         });
     }
 
+    function isDontCard(key) {
+        const num = parseInt(key.replace("A", ""));
+        return (num >= 11 && num <= 20);
+    }
+
+    function updateTargetDropdown(playersList) {
+        let select = document.getElementById("target-player-select"); if(!select) return;
+        select.innerHTML = ""; let count = 0;
+        for (let pName in playersList) {
+            if (pName !== playerUsername) {
+                let opt = document.createElement("option"); opt.value = pName; opt.innerText = pName;
+                select.appendChild(opt); count++;
+            }
+        }
+        let actionVal = document.getElementById("action-select").value;
+        if (isDontCard(actionVal) && count > 0) { 
+            document.getElementById("target-player-group").style.setProperty("display", "block", "important"); 
+        } else { 
+            document.getElementById("target-player-group").style.setProperty("display", "none", "important"); 
+        }
+    }
+
     function initializeTrackerDashboard() {
         let pId = document.getElementById("player-profile-select").value;
         chosenProfile = PROFILE_DB[pId];
@@ -793,8 +810,13 @@
     function previewActionInfo() {
         let key = document.getElementById("action-select").value;
         document.getElementById("action-preview-text").innerText = (key && ACTION_DB_INFO[key]) ? ACTION_DB_INFO[key] : "";
-        if (isDontCard(key)) { document.getElementById("target-player-group").style.display = "block"; } 
-        else { document.getElementById("target-player-group").style.display = "none"; }
+        
+        // Dynamic visibility evaluation engine hook
+        if (isDontCard(key)) { 
+            document.getElementById("target-player-group").style.setProperty("display", "block", "important"); 
+        } else { 
+            document.getElementById("target-player-group").style.setProperty("display", "none", "important"); 
+        }
     }
 
     function openCustomModal(title, text, isConfirm, onConfirmCallback) {
@@ -882,10 +904,12 @@
         let template = ASSET_TEMPLATES[cardId]; let currentMarketPrice = globalMarketPrices[cardId] || template.cost;
         activeTransactionStaging = { type: "BUY", cardId: cardId, instanceId: null, executionPrice: currentMarketPrice };
         document.getElementById("confirm-action-type").innerText = "CONFIRM PURCHASE REGISTRATION";
-        document.getElementById("confirm-asset-details").innerText = `[${cardId}] ${template.name}`;
+        document.getElementById("confirm-asset-details").innerText = `[${cardId}] ${template.name} (${template.sector} Sector)`;
         document.getElementById("confirm-price-readout").innerText = `$${currentMarketPrice}`;
         document.getElementById("confirm-price-readout").style.color = "var(--warning-color)";
+        
         document.getElementById("confirm-multi-btn").innerText = "Confirm & Repeat Action";
+        document.getElementById("confirm-cancel-btn").setAttribute("onclick", "showScreen('view-overview')");
         showScreen("view-confirm-transaction");
     }
 
@@ -896,31 +920,44 @@
         document.getElementById("confirm-asset-details").innerText = `Instance #${inst.instanceId} - [${inst.cardId}] ${inst.name}`;
         document.getElementById("confirm-price-readout").innerText = `$${inst.currentValue}`;
         document.getElementById("confirm-price-readout").style.color = "var(--success-color)";
+        
+        document.getElementById("confirm-multi-btn").innerText = "Confirm & Repeat Action";
+        document.getElementById("confirm-cancel-btn").setAttribute("onclick", "showScreen('view-overview')");
         showScreen("view-confirm-transaction");
     }
 
     function commitConfirmedTransaction(wantsToRepeat) {
         let cardId = activeTransactionStaging.cardId; let price = activeTransactionStaging.executionPrice;
-        let originalType = activeTransactionStaging.type; let originalInstanceId = activeTransactionStaging.instanceId;
+        let originalType = activeTransactionStaging.type;
+        let originalInstanceId = activeTransactionStaging.instanceId;
 
         if (originalType === "BUY") {
             ownedAssetInstances.push({ instanceId: instanceIdCounter++, cardId: cardId, name: ASSET_TEMPLATES[cardId].name, risk: ASSET_TEMPLATES[cardId].risk, boughtPrice: price, currentValue: price, netChange: 0, sector: ASSET_TEMPLATES[cardId].sector, tags: { immune: false, doubleGrowth: false } });
             document.getElementById("inv-type").innerText = "ASSET PURCHASE SECURED (BUY)";
-            document.getElementById("inv-cash-flow").innerText = `-$${price}`;
-            pushSessionActionLog("ASSET_BUY", `Secured registration of asset ${cardId} at $${price}`);
+            document.getElementById("inv-cash-flow").innerText = `-$${price}`; document.getElementById("inv-cash-flow").style.color = "var(--danger-color)";
+            document.getElementById("inv-instruction").innerText = `BANK NOTIFICATION: Pay $${price} cash to banker. Tokens go UNDER the physical layout card.`;
+            pushSessionActionLog("ASSET_BUY", `Secured registration of asset ${cardId} at transaction cost price $${price}`);
         } else {
             let targetIdx = ownedAssetInstances.findIndex(x => x.instanceId === originalInstanceId); if (targetIdx !== -1) ownedAssetInstances.splice(targetIdx, 1);
             document.getElementById("inv-type").innerText = "ASSET PORTFOLIO LIQUIDATION (SELL)";
-            document.getElementById("inv-cash-flow").innerText = `+$${price}`;
-            pushSessionActionLog("ASSET_SELL", `Liquidated asset instance #${originalInstanceId} ([${cardId}]) collecting $${price}`);
+            document.getElementById("inv-cash-flow").innerText = `+$${price}`; document.getElementById("inv-cash-flow").style.color = "var(--success-color)";
+            document.getElementById("inv-instruction").innerText = `BANK NOTIFICATION: Return physical card layout. Banker pays player back $${price} from card cache notes.`;
+            pushSessionActionLog("ASSET_SELL", `Liquidated asset instance #${originalInstanceId} ([${cardId}]) collecting payout value $${price}`);
         }
         document.getElementById("inv-asset").innerText = cardId;
+        
         savePlayerSession();
-        if (wantsToRepeat && originalType === "BUY") {
-            document.getElementById("invoice-return-btn").setAttribute("onclick", `returnToOverviewAfterInvoice(); stageBuyConfirmation('${cardId}');`);
+
+        if (wantsToRepeat) {
+            if (originalType === "BUY") {
+                document.getElementById("invoice-return-btn").setAttribute("onclick", `returnToOverviewAfterInvoice(); stageBuyConfirmation('${cardId}');`);
+            } else {
+                document.getElementById("invoice-return-btn").setAttribute("onclick", "returnToOverviewAfterInvoice();");
+            }
         } else {
             document.getElementById("invoice-return-btn").setAttribute("onclick", "returnToOverviewAfterInvoice()");
         }
+        
         showScreen("view-invoice");
     }
 
@@ -929,10 +966,14 @@
     function openInputModal(title, body, placeholder, onConfirm) {
         document.getElementById("input-modal-title").innerText = title;
         document.getElementById("input-modal-body").innerText = body;
-        const field = document.getElementById("input-modal-field"); field.value = ""; field.placeholder = placeholder || "";
+        const field = document.getElementById("input-modal-field");
+        field.value = ""; field.placeholder = placeholder || "";
+        field.type = (placeholder && placeholder.toLowerCase().includes("id")) ? "number" : "text";
         const overlay = document.getElementById("input-modal-overlay");
-        const btnConfirm = document.getElementById("input-modal-confirm"); const btnCancel = document.getElementById("input-modal-cancel");
-        const newConfirm = btnConfirm.cloneNode(true); const newCancel = btnCancel.cloneNode(true);
+        const btnConfirm = document.getElementById("input-modal-confirm");
+        const btnCancel = document.getElementById("input-modal-cancel");
+        const newConfirm = btnConfirm.cloneNode(true);
+        const newCancel = btnCancel.cloneNode(true);
         btnConfirm.parentNode.replaceChild(newConfirm, btnConfirm); btnCancel.parentNode.replaceChild(newCancel, btnCancel);
         newConfirm.addEventListener("click", () => { overlay.classList.remove("active-modal"); onConfirm(field.value.trim()); });
         newCancel.addEventListener("click", () => { overlay.classList.remove("active-modal"); resetActionSelectionFields(); });
@@ -943,7 +984,7 @@
     function resetActionSelectionFields() {
         document.getElementById("action-select").value = ""; 
         document.getElementById("action-preview-text").innerText = "";
-        document.getElementById("target-player-group").style.display = "none";
+        document.getElementById("target-player-group").style.setProperty("display", "none", "important");
     }
 
     function executeActionCardDirect() {
@@ -953,7 +994,6 @@
             let targetedPlayer = document.getElementById("target-player-select").value;
             if (!targetedPlayer) { openCustomModal("Selection Error", "No other opponent player registered.", false); return; }
             
-            // Broadcast matching sound block dynamically over network
             let sharedIdx = broadcastNetworkYouTubeAudio();
 
             if (cardKey === "A16") {
@@ -1117,20 +1157,6 @@
         openCustomModal("Scenario Notification", `Scenario executed inside room:\n[${scenarioKey}] ${scenario.title}`, false, () => {
             showJustificationPopup(scenarioKey);
         });
-    }
-
-    function updateTargetDropdown(playersList) {
-        let select = document.getElementById("target-player-select"); if(!select) return;
-        select.innerHTML = ""; let count = 0;
-        for (let pName in playersList) {
-            if (pName !== playerUsername) {
-                let opt = document.createElement("option"); opt.value = pName; opt.innerText = pName;
-                select.appendChild(opt); count++;
-            }
-        }
-        let actionVal = document.getElementById("action-select").value;
-        if (isDontCard(actionVal) && count > 0) { document.getElementById("target-player-group").style.display = "block"; } 
-        else { document.getElementById("target-player-group").style.display = "none"; }
     }
 
     function recomputeScenarioWithA3(scenarioKey) {

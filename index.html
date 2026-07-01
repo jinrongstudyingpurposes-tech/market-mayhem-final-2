@@ -41,7 +41,7 @@
         h3 { font-size: 1.1rem; margin-bottom: 10px; color: #cbd5e1; }
         
         .view-panel { display: none; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4); margin-bottom: 15px; }
-        .view-panel.active-view { display: block; }
+        .view-panel.active-view { display: block !important; }
 
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #94a3b8; font-size: 0.9rem; }
@@ -56,7 +56,6 @@
         .btn-success { background: var(--success-color); }
         .btn-secondary { background: #475569; }
 
-        /* Mode Selector Button Styles */
         .mode-btn-container { display: flex; gap: 12px; justify-content: center; margin: 15px 0; }
         .mode-toggle-btn { padding: 12px 24px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid var(--border-color); background: #0f172a; color: #94a3b8; cursor: pointer; transition: all 0.2s ease; width: auto; }
         .mode-toggle-btn.active-mode { background: var(--accent-color); color: white; border-color: var(--accent-color); box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
@@ -153,7 +152,6 @@
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
         .modal-footer button { width: auto; padding: 10px 20px; }
 
-        /* Floating Admin Notepad Trigger Button */
         .admin-floating-trigger { position: fixed; bottom: 20px; right: 20px; background: #9333ea; border: 2px solid #a855f7; width: 56px; height: 56px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(147, 51, 234, 0.5); z-index: 99999; transition: transform 0.2s ease; }
         .admin-floating-trigger:hover { transform: scale(1.1); background: #a855f7; }
         .admin-floating-trigger svg { width: 26px; height: 26px; fill: white; }
@@ -206,7 +204,7 @@
             </div>
         </div>
         <div style="text-align: center; margin-top: 10px;">
-            <button onclick="connectToLobbyRoom()">Connect to Shared Room</button>
+            <button type="button" onclick="connectToLobbyRoom()">Connect to Shared Room</button>
         </div>
     </div>
 
@@ -220,14 +218,14 @@
                 <option value="Z3">Z3 - The Balanced Baller (Balanced Framework)</option>
             </select>
         </div>
-        <button onclick="initializeTrackerDashboard()">Launch Tracker Dashboard</button>
+        <button type="button" onclick="initializeTrackerDashboard()">Launch Tracker Dashboard</button>
     </div>
 
     <div id="view-overview" class="view-panel">
         <div class="adaptive-nav-bar">
             <div class="nav-buttons-cluster">
-                <button class="btn-secondary" onclick="backToProfileSelection()">Back to Profiles</button>
-                <button class="btn-danger" style="background-color:#991b1b;" onclick="triggerEndGameArchive()">End Game</button>
+                <button type="button" class="btn-secondary" onclick="backToProfileSelection()">Back to Profiles</button>
+                <button type="button" class="btn-danger" style="background-color:#991b1b;" onclick="triggerEndGameArchive()">End Game</button>
             </div>
             <div class="portfolio-value-banner" id="room-code-banner" style="font-size: 1.1rem; color: #cbd5e1; border: 1px solid var(--border-color); padding: 12px;">Room: ----</div>
             <div class="portfolio-value-banner">
@@ -301,7 +299,7 @@
                     </select>
                     <p id="scenario-preview-text" style="font-size: 0.8rem; color: #94a3b8; margin-top: 6px; font-style: italic; min-height: 20px;"></p>
                 </div>
-                <button style="width: 100%; margin-bottom: 25px;" onclick="triggerScenarioConfirmation()">Confirm &amp; Broadcast Scenario</button>
+                <button type="button" style="width: 100%; margin-bottom: 25px;" onclick="triggerScenarioConfirmation()">Confirm &amp; Broadcast Scenario</button>
 
                 <h2>Action Card Deck</h2>
                 <div class="form-group">
@@ -337,7 +335,7 @@
                     <select id="target-player-select"></select>
                 </div>
                 
-                <button style="width: 100%; background: #9333ea;" onclick="executeActionCardDirect()">Apply Action Card</button>
+                <button type="button" style="width: 100%; background: #9333ea;" onclick="executeActionCardDirect()">Apply Action Card</button>
 
                 <div style="margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 15px;">
                     <h3>Profile Target Status</h3>
@@ -356,9 +354,9 @@
             <div class="confirm-price-display" id="confirm-price-readout">$0</div>
         </div>
         <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-            <button class="btn-success" style="min-width: 160px;" onclick="commitConfirmedTransaction(false)">Confirm &amp; Complete</button>
-            <button class="btn-success" style="background-color: var(--warning-color); color: black; min-width: 160px;" id="confirm-multi-btn" onclick="commitConfirmedTransaction(true)">Confirm &amp; Repeat Action</button>
-            <button class="btn-secondary" style="min-width: 160px;" id="confirm-cancel-btn" onclick="showScreen('view-overview')">Cancel</button>
+            <button type="button" class="btn-success" style="min-width: 160px;" onclick="commitConfirmedTransaction(false)">Confirm &amp; Complete</button>
+            <button type="button" class="btn-success" style="background-color: var(--warning-color); color: black; min-width: 160px;" id="confirm-multi-btn" onclick="commitConfirmedTransaction(true)">Confirm &amp; Repeat Action</button>
+            <button type="button" class="btn-secondary" style="min-width: 160px;" id="confirm-cancel-btn" onclick="showScreen('view-overview')">Cancel</button>
         </div>
     </div>
 
@@ -371,13 +369,13 @@
             <div class="invoice-amount" id="inv-cash-flow">$0</div>
             <div id="inv-instruction" style="font-size: 0.9rem; color: #475569; border-top: 1px solid #e2e8f0; padding-top: 8px; line-height: 1.4;"></div>
         </div>
-        <button class="btn-success" id="invoice-return-btn" onclick="returnToOverviewAfterInvoice()">Return to Overview Dashboard</button>
+        <button type="button" class="btn-success" id="invoice-return-btn" onclick="returnToOverviewAfterInvoice()">Return to Overview Dashboard</button>
     </div>
 
     <div id="view-admin-datacenter" class="view-panel">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
             <h2>Exclusive Administrator Analytics Data Center</h2>
-            <button class="btn-secondary" style="width: auto;" onclick="exitAdminDataCenterView()">Exit Analytics View</button>
+            <button type="button" class="btn-secondary" style="width: auto;" onclick="exitAdminDataCenterView()">Exit Analytics View</button>
         </div>
 
         <div class="stat-card-row">
@@ -414,7 +412,7 @@
                 <thead>
                     <tr>
                         <th>Game ID (Room Code)</th>
-                        <th>Timestamp Timestamp</th>
+                        <th>Timestamp</th>
                         <th>User Identity</th>
                         <th>Operation Type</th>
                         <th>Logged Metric Parameter Payload</th>
@@ -434,8 +432,8 @@
         <div id="input-modal-body" class="modal-body" style="white-space:pre-wrap;"></div>
         <input type="text" id="input-modal-field" style="margin-bottom:15px; font-size:1.1rem; letter-spacing:1px;" placeholder="">
         <div class="modal-footer">
-            <button id="input-modal-cancel" class="btn-secondary" style="width:auto; padding:10px 20px;">Cancel</button>
-            <button id="input-modal-confirm" class="btn-success" style="width:auto; padding:10px 20px;">Confirm</button>
+            <button type="button" id="input-modal-cancel" class="btn-secondary" style="width:auto; padding:10px 20px;">Cancel</button>
+            <button type="button" id="input-modal-confirm" class="btn-success" style="width:auto; padding:10px 20px;">Confirm</button>
         </div>
     </div>
 </div>
@@ -445,8 +443,8 @@
         <div id="custom-modal-title" class="modal-header">Notification</div>
         <div id="custom-modal-body" class="modal-body">Message contents...</div>
         <div id="custom-modal-footer" class="modal-footer">
-            <button id="modal-btn-cancel" class="btn-secondary">Cancel</button>
-            <button id="modal-btn-confirm" class="btn-success">OK</button>
+            <button type="button" id="modal-btn-cancel" class="btn-secondary">Cancel</button>
+            <button type="button" id="modal-btn-confirm" class="btn-success">OK</button>
         </div>
     </div>
 </div>
@@ -456,7 +454,7 @@
         <div class="modal-header" style="color: var(--warning-color);">Market Event Breakdown &amp; Analysis</div>
         <div id="justification-modal-body" class="modal-body" style="max-height: 320px; overflow-y: auto;"></div>
         <div class="modal-footer">
-            <button id="justification-modal-close-btn" class="btn-success" disabled>Wait (10s)</button>
+            <button type="button" id="justification-modal-close-btn" class="btn-success" disabled>Wait (10s)</button>
         </div>
     </div>
 </div>
@@ -468,7 +466,13 @@
 </div>
 
 <script>
-    // HARDCODED MP3 TARGET SOUNDS PRE-CONFIGURATION (Base64 fallback sound for standalone testing redundancy)
+    // Config path default mapping infrastructure
+    const firebaseConfig = {
+        databaseURL: "https://market-mayhem-tracker-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    };
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const rtdb = firebase.database();
+
     const MP3_SOUNDS = [
         "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==",
         "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==",
@@ -544,6 +548,29 @@
         "S14": { title: "Energy Sector Collapse", rules: { "E5": 10, "E6": 10, "E9": 35, "E11": -25, "F1": 45, "B4": -30, "F3": -25 }, desc: "Lockdowns freeze travel. Oil hits negative values, breaking old fossil high-yield energy bonds while software structures stay safe." }
     };
 
+    const ACTION_DB_INFO = {
+        "A1":  "A1: Researching — Peek at the top 2 cards of the Market Scenario deck, then place them back on top in any order you choose.",
+        "A2":  "A2: Dollar-Cost Averaging — Gain an additional +$50 cash from the bank at the end of each round for the next 3 rounds.",
+        "A3":  "A3: Diversification — Play this card when a negative Market Scenario is revealed. Reduce your total portfolio losses by 50% for this round.",
+        "A4":  "A4: Market Research — All investments within that chosen sector gain double their positive payout value on the next scenario card.",
+        "A5":  "A5: Emergency Savings — Play this card immediately after a negative Market Scenario. Recover $100 cash instantly from the bank to offset your losses.",
+        "A6":  "A6: Safe Haven — Select any 1 investment asset in your portfolio. That specific asset is 100% immune to all financial losses for the next round.",
+        "A7":  "A7: Cashback Reward — Instantly receive a flat +$50 cash bonus directly from the bank.",
+        "A8":  "A8: Rebalance Portfolio — Swap any 1 investment asset you currently own with 1 active investment asset available on the open board.",
+        "A9":  "A9: Hedge Funds — Play this card to completely cancel out the single largest financial asset loss you would take during the next scenario card round.",
+        "A10": "A10: Investment Strategy — Choose 1 asset you own. For the next 2 rounds, its baseline Base Growth per Round value is completely doubled.",
+        "A11": "A11: Bad Advice — Target an opponent. Their total investment returns from the next positive Market Scenario card are slashed by 50%.",
+        "A12": "A12: Overconfidence — Target an opponent. For the next Market Scenario card, all of that player's investment gains are doubled, but all of their investment losses are also doubled.",
+        "A13": "A13: Panic Sell — Target an opponent. Force them to immediately sell any 1 asset from their portfolio back to the board for only 50% of its original card cost.",
+        "A14": "A14: FOMO (Fear Of Missing Out) — Target an opponent. On their next turn, they must spend their cash to buy a High-Risk (🔴) asset from the board.",
+        "A15": "A15: Greed — Target an opponent. If the next scenario card is a negative event, that player's total portfolio losses are completely doubled for the round.",
+        "A16": "A16: Market Rumour — Any investment card in that sector suffers double losses during the next negative scenario.",
+        "A17": "A17: Revenge Trading — Target an opponent. If they suffer a loss during the next Market Scenario, they must pay an additional -$100 cash penalty to the bank.",
+        "A18": "A18: Analysis Paralysis — Target an opponent. That player is entirely blocked from purchasing or bidding on any new assets from the board during their next turn.",
+        "A19": "A19: Financial Scams — Target an opponent. That player's assets fail to generate payouts next round; they skip their next dividend/payout cycle entirely.",
+        "A20": "A20: Lifestyle Creep — Target an opponent. They must immediately pay a -$100 cash fee to the bank, simulating uninvested, inflated luxury lifestyle spending."
+    };
+
     let lobbyRoomCode = "";
     let playerUsername = "";
     let globalMarketPrices = {}; 
@@ -554,11 +581,6 @@
 
     let activePlayerModifiers = { diversification: false, hedgeFunds: false, badAdvice: false, overconfidence: false, greed: false, marketRumourSector: null };
     let activeTransactionStaging = { type: "", cardId: "", instanceId: null, executionPrice: 0 };
-
-    window.onload = function() {
-        populateScenarioOptions();
-        initializeLocalMarketPrices();
-    };
 
     function setVariantMode(mode) {
         currentGameMode = mode;
@@ -596,9 +618,9 @@
         try {
             let randIdx = Math.floor(Math.random() * MP3_SOUNDS.length);
             let audioNode = new Audio(MP3_SOUNDS[randIdx]);
-            audioNode.play().catch(err => console.log("Audio play blocked by security frame policy:", err));
+            audioNode.play().catch(err => console.log("Audio contextual lock applied by web frame configuration rules:", err));
         } catch(e) {
-            console.error("Audio engine context failure:", e);
+            console.error("Audio engine failed to initialize:", e);
         }
     }
 
@@ -616,8 +638,15 @@
     }
 
     function showScreen(screenId) {
-        document.querySelectorAll('.view-panel').forEach(view => view.classList.remove('active-view'));
-        document.getElementById(screenId).classList.add('active-view');
+        document.querySelectorAll('.view-panel').forEach(view => {
+            view.style.display = "none";
+            view.classList.remove('active-view');
+        });
+        const target = document.getElementById(screenId);
+        if (target) {
+            target.style.display = "block";
+            target.classList.add('active-view');
+        }
         if (screenId === 'view-overview') {
             renderPortfolioTable();
             renderBuyMarketBoard();
@@ -667,7 +696,6 @@
             }
         });
 
-        // VICTIM ATTACK PROPAGATION LISTENER
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers`).on('value', (snap) => {
             if (snap.exists()) {
                 let remoteMods = snap.val();
@@ -707,14 +735,13 @@
             if (val) { executeScenarioLogicLocally(val); }
         });
 
-        // REAL-TIME OVERVIEW FEED LOG TABLE PIPELINE
         rtdb.ref(`rooms/${lobbyRoomCode}/logs`).on('value', (snap) => {
             const tbody = document.getElementById("room-history-table-body");
             if (!tbody) return;
             if (snap.exists()) {
                 tbody.innerHTML = "";
                 let logsObj = snap.val();
-                let logsArr = Object.values(logsObj).reverse(); // Show latest on top
+                let logsArr = Object.values(logsObj).reverse();
                 logsArr.slice(0, 15).forEach(l => {
                     tbody.innerHTML += `
                         <tr>
@@ -841,7 +868,7 @@
                     <td class="${buyPriceClass}">$${inst.boughtPrice}</td>
                     <td style="font-size: 1.1rem; font-weight: bold; color: var(--success-color);">$${inst.currentValue}</td>
                     <td>${changeCell}</td>
-                    <td><button class="btn-danger" style="padding:6px 12px; font-size:0.9rem; width:auto;" onclick="stageSellConfirmation(${inst.instanceId})">Sell</button></td>
+                    <td><button type="button" class="btn-danger" style="padding:6px 12px; font-size:0.9rem; width:auto;" onclick="stageSellConfirmation(${inst.instanceId})">Sell</button></td>
                 </tr>
             `;
         });
@@ -866,7 +893,7 @@
                     <td><span class="risk-badge risk-${template.risk}">Risk ${template.risk}</span></td>
                     <td>${template.sector}</td>
                     <td style="font-size: 1.1rem; font-weight: bold; color: var(--warning-color);">$${currentMarketCostPrice}</td>
-                    <td><button class="btn-success" style="padding:6px 12px; font-size:0.9rem; width:auto;" onclick="stageBuyConfirmation('${code}')">Buy</button></td>
+                    <td><button type="button" class="btn-success" style="padding:6px 12px; font-size:0.9rem; width:auto;" onclick="stageBuyConfirmation('${code}')">Buy</button></td>
                 </tr>
             `;
         }
@@ -967,7 +994,6 @@
             let targetedPlayer = document.getElementById("target-player-select").value;
             if (!targetedPlayer) { openCustomModal("Selection Error", "No other opponent player registered to target inside this room space.", false); return; }
             
-            // ATTACKER TRIGGER AUDIO ACTION SYNC
             playTargetSoundEffect();
 
             if (cardKey === "A16") {
@@ -1235,9 +1261,6 @@
         }
     }
 
-    /* -------------------------------------------------------------------------
-       ADMIN DATA CENTER ANALYTICS & CSV DATA EXPORT MANAGEMENT ENGINE ARCHITECTURE
-       ------------------------------------------------------------------------- */
     let cachedGlobalRoomsDataset = {};
 
     function triggerAdminPasswordGate() {
@@ -1257,7 +1280,6 @@
                 populateAdminRoomFilterControls(cachedGlobalRoomsDataset);
                 computeAdminHighValueMetrics(cachedGlobalRoomsDataset);
                 showScreen("view-admin-datacenter");
-                document.getElementById("view-admin-datacenter").classList.add("active-view");
             } else {
                 openCustomModal("No Data Found", "No active or recorded server room instances found.", false);
             }
@@ -1265,7 +1287,6 @@
     }
 
     function exitAdminDataCenterView() {
-        document.getElementById("view-admin-datacenter").classList.remove("active-view");
         showScreen("view-overview");
     }
 
@@ -1334,7 +1355,7 @@
     function exportIndividualActiveGameCSV() {
         let targetRoomKey = document.getElementById("admin-room-filter-select").value;
         if (!targetRoomKey || !cachedGlobalRoomsDataset[targetRoomKey] || !cachedGlobalRoomsDataset[targetRoomKey].logs) {
-            openCustomModal("Export Aborted", "No structural ledger activity logs recorded inside this specific room node block destination to export.", false);
+            openCustomModal("Export Aborted", "No structural ledger activity logs recorded inside this room block.", false);
             return;
         }
 

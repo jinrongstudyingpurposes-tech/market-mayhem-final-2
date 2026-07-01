@@ -487,7 +487,6 @@
     let ytAPIPlayer = null;
     let isYTPlayerReady = false;
 
-    // 🚀 ASYNC Overhaul: Called automatically by the YouTube API script loader frame environment
     function onYouTubeIframeAPIReady() {
         ytAPIPlayer = new YT.Player('yt-player-hardware-bridge', {
             height: '100', width: '100',
@@ -610,7 +609,6 @@
         });
     }
 
-    // 🚀 OVERHAUL: API Hardware Bridge Sound Player (Bypasses all iOS and Android Mobile Sandbox execution restrictions)
     function executeYouTubeHardwareAudioPlayback(specificIndex) {
         try {
             let randIdx = (specificIndex !== undefined) ? specificIndex : Math.floor(Math.random() * YOUTUBE_VIDEO_IDS.length);
@@ -683,7 +681,6 @@
         if (!code) { openCustomModal("Input Error", "Please provide a valid Room ID code.", false); return; }
         if (!name) { openCustomModal("Input Error", "Please provide a game username to join.", false); return; }
         
-        // 🚀 OVERHAUL MOBILE AUDIO UNLOCK GATE: Authenticates Audio context channels directly upon user touch event framework
         try {
             if (ytAPIPlayer && isYTPlayerReady) {
                 ytAPIPlayer.playVideo();
@@ -733,6 +730,7 @@
                 if (remoteMods.marketRumourSector) { activePlayerModifiers.marketRumourSector = remoteMods.marketRumourSector; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/marketRumourSector`).set(""); openCustomModal("Target Alert", `Another player hit you with Market Rumour on sector: ${remoteMods.marketRumourSector}! (A16 applied)`, false); triggeredSound = true; }
                 if (remoteMods.textPayload) { openCustomModal("Target Alert", `You have been targeted by an opponent card effect:\n\n"${remoteMods.textPayload}"`, false); rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/textPayload`).set(""); triggeredSound = true; }
                 
+                // 🎯 VICTIM DEVICE-ONLY INTERCEPT PATHWAY
                 if (triggeredSound || remoteMods.randomNonceTrigger > 0) {
                     let targetIdx = undefined;
                     if (remoteMods.sharedSoundIndex !== undefined && remoteMods.sharedSoundIndex >= 0) {
@@ -813,12 +811,10 @@
     }
 
     function backToProfileSelection() { showScreen("view-setup"); }
-    
     function previewScenarioInfo() {
         let key = document.getElementById("scenario-select").value;
         document.getElementById("scenario-preview-text").innerText = (key && SCENARIO_DB[key]) ? SCENARIO_DB[key].desc : "";
     }
-    
     function previewActionInfo() {
         let key = document.getElementById("action-select").value;
         document.getElementById("action-preview-text").innerText = (key && ACTION_DB_INFO[key]) ? ACTION_DB_INFO[key] : "";
@@ -985,13 +981,14 @@
             let targetedPlayer = document.getElementById("target-player-select").value;
             if (!targetedPlayer) { openCustomModal("Selection Error", "No other opponent player registered.", false); return; }
             
-            let sharedIdx = executeYouTubeHardwareAudioPlayback();
+            // 🎯 FIXED: Choose the sound index locally but DO NOT play it here on the attacker's screen
+            let chosenIndex = Math.floor(Math.random() * YOUTUBE_VIDEO_IDS.length);
 
             if (cardKey === "A16") {
                 openInputModal("A16: Target Sector Attack", "Type the target sector:", "Tech / Consumer / Healthcare / Financial / Energy", (val) => {
                     let sect = val.trim(); if (!sect) return;
                     rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update({ 
-                        marketRumourSector: sect, randomNonceTrigger: Date.now(), sharedSoundIndex: sharedIdx
+                        marketRumourSector: sect, randomNonceTrigger: Date.now(), sharedSoundIndex: chosenIndex
                     });
                     pushSessionActionLog("ACTION_PLAY_ATTACK", `Played ${cardKey} targeting ${targetedPlayer} on [${sect}]`);
                     resetActionSelectionFields();
@@ -1003,7 +1000,7 @@
                 else if (cardKey === "A15") nodeUpdate = { greed: true };
                 else { nodeUpdate = { textPayload: `Card ${cardKey} has been activated against you!` }; }
                 nodeUpdate.randomNonceTrigger = Date.now();
-                nodeUpdate.sharedSoundIndex = sharedIdx;
+                nodeUpdate.sharedSoundIndex = chosenIndex;
                 
                 rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update(nodeUpdate);
                 pushSessionActionLog("ACTION_PLAY_ATTACK", `Played offensive card ${cardKey} targeting ${targetedPlayer}`);
@@ -1081,12 +1078,9 @@
 
         const overlay = document.getElementById("justification-modal-overlay");
         
-        // 🚀 OVERHAUL: Conditional Training Timer Logic
         if (standardOrganicGrowthOccurred || internalExplanationLogs.length === 0) {
             htmlContent += `<p style="color:var(--success-color); font-weight:600;">All owned positions incremented cleanly from organic growth factors.</p>`;
             modalBody.innerHTML = htmlContent;
-            
-            // Clean bypass: If unaffected, remove countdown lock instantly
             closeBtn.disabled = false;
             closeBtn.innerText = "Close Notification";
             overlay.classList.add("active-modal");
@@ -1094,8 +1088,6 @@
         } else {
             htmlContent += `<p style="margin-bottom:8px; color:var(--warning-color); font-weight:600;">Event shifts directly impacting your holdings:</p><ul style="padding-left:18px; line-height:1.5;">${internalExplanationLogs.join("")}</ul>`;
             modalBody.innerHTML = htmlContent;
-            
-            // Mandatory lock: Force 10-second countdown for explicitly affected portfolios
             closeBtn.disabled = true;
             let count = 10; closeBtn.innerText = `Understand (${count}s)`;
             overlay.classList.add("active-modal");
@@ -1159,6 +1151,19 @@
         openCustomModal("Scenario Notification", `Scenario executed inside room:\n[${scenarioKey}] ${scenario.title}`, false, () => {
             showJustificationPopup(scenarioKey);
         });
+    }
+
+    function recomputeScenarioWithA3(scenarioKey) {
+        let scenario = SCENARIO_DB[scenarioKey];
+        ownedAssetInstances.forEach(inst => {
+            if (scenario.rules.hasOwnProperty(inst.cardId) && scenario.rules[inst.cardId] < 0) {
+                let originalLoss = inst.netChange; let mitigatedLoss = Math.floor(originalLoss * 0.5);
+                let recoveryAdjustment = mitigatedLoss - originalLoss; 
+                inst.currentValue += recoveryAdjustment; inst.netChange = mitigatedLoss;
+                if (inst.currentValue < 0) inst.currentValue = 0;
+            }
+        });
+        activePlayerModifiers.diversification = false; savePlayerSession(); renderPortfolioTable(); renderBuyMarketBoard(); checkGoalCompliance();
     }
 
     function checkGoalCompliance() {

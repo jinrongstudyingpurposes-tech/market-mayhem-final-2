@@ -33,7 +33,7 @@
             background-color: var(--goal-met-bg) !important;
         }
 
-        .container { width: 100%; max-width: 1200px; margin: 0 auto; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; position: relative; }
         header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; }
         h1 { color: var(--accent-color); font-size: 2rem; }
         header p { color: #94a3b8; font-size: 0.9rem; margin-top: 4px; }
@@ -45,7 +45,7 @@
 
         .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #94a3b8; font-size: 0.9rem; }
-        input, select { width: 100%; padding: 14px; background: #0f172a; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 8px; font-size: 1rem; -webkit-appearance: none; }
+        input, select { width: 100%; padding: 14px; background: #0f172a; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 8px; font-size: 1rem; }
         input:focus, select:focus { border-color: var(--accent-color); outline: none; }
 
         button { width: 100%; background: var(--accent-color); color: white; border: none; padding: 14px 22px; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: opacity 0.2s, transform 0.1s; text-align: center; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -55,6 +55,11 @@
         .btn-danger { background: var(--danger-color); }
         .btn-success { background: var(--success-color); }
         .btn-secondary { background: #475569; }
+
+        /* Mode Selector Button Styles */
+        .mode-btn-container { display: flex; gap: 12px; justify-content: center; margin: 15px 0; }
+        .mode-toggle-btn { padding: 12px 24px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid var(--border-color); background: #0f172a; color: #94a3b8; cursor: pointer; transition: all 0.2s ease; width: auto; }
+        .mode-toggle-btn.active-mode { background: var(--accent-color); color: white; border-color: var(--accent-color); box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
 
         table, table.overview-table, .overview-table {
             width: 100% !important;
@@ -141,16 +146,22 @@
         .goal-met { background: var(--success-color); color: white; box-shadow: 0 0 15px rgba(34,213,94,0.5); }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; padding: 15px; }
-        .modal-box { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; max-width: 480px; width: 100%; padding: 20px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+        .modal-box { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; max-width: 580px; width: 100%; padding: 20px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
         .modal-overlay.active-modal { display: flex; }
         .modal-header { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
         .modal-body { font-size: 0.95rem; margin-bottom: 15px; color: #e2e8f0; line-height: 1.4; white-space: pre-wrap; }
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
         .modal-footer button { width: auto; padding: 10px 20px; }
 
-        .radio-group { display: flex; gap: 20px; justify-content: center; margin-bottom: 15px; background: #0f172a; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; }
-        .radio-label { display: flex; align-items: center; gap: 8px; color: #cbd5e1; cursor: pointer; font-weight: normal; }
-        .radio-label input { width: auto; padding: 0; cursor: pointer; }
+        /* Floating Admin Notepad Trigger Button */
+        .admin-floating-trigger { position: fixed; bottom: 20px; right: 20px; background: #9333ea; border: 2px solid #a855f7; width: 56px; height: 56px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(147, 51, 234, 0.5); z-index: 99999; transition: transform 0.2s ease; }
+        .admin-floating-trigger:hover { transform: scale(1.1); background: #a855f7; }
+        .admin-floating-trigger svg { width: 26px; height: 26px; fill: white; }
+
+        .stat-card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; text-align: center; }
+        .stat-card h4 { font-size: 0.85rem; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; }
+        .stat-card div { font-size: 1.6rem; font-weight: bold; color: var(--accent-color); }
 
         @media (min-width: 768px) {
             body { padding: 24px; }
@@ -180,15 +191,18 @@
         <h2>Enter Live Game Space</h2>
         <div class="form-group">
             <label for="input-lobby-code">Live Game ID (Room Code):</label>
-            <input type="text" id="input-lobby-code" placeholder="e.g. 5005" style="text-transform: uppercase; font-family: monospace; letter-spacing: 2px; text-align: center; font-size: 1.4rem; max-width: 350px; margin: 0 auto; display: block; margin-bottom: 15px;">
+            <div style="display: flex; gap: 10px; max-width: 450px; margin: 0 auto 15px auto;">
+                <input type="text" id="input-lobby-code" placeholder="e.g. 5005" style="text-transform: uppercase; font-family: monospace; letter-spacing: 2px; text-align: center; font-size: 1.4rem;">
+                <button type="button" class="btn-secondary" style="width: auto; padding: 0 15px; white-space: nowrap; font-size: 0.9rem;" onclick="generateUnusedRoomID()">Generate ID</button>
+            </div>
             
             <label for="input-user-name">Your Game Username:</label>
-            <input type="text" id="input-user-name" placeholder="Enter name or initials" style="text-align: center; font-size: 1.2rem; max-width: 350px; margin: 0 auto; display: block; margin-bottom: 15px;">
+            <input type="text" id="input-user-name" placeholder="Enter name or initials" style="text-align: center; font-size: 1.2rem; max-width: 450px; margin: 0 auto 15px auto; display: block;">
             
-            <label>Select Game Mode:</label>
-            <div class="radio-group">
-                <label class="radio-label"><input type="radio" name="game-mode" value="normal" checked onchange="toggleGameModeData(this.value)"> Normal Variant</label>
-                <label class="radio-label"><input type="radio" name="game-mode" value="quickplay" onchange="toggleGameModeData(this.value)"> Quickplay Variant</label>
+            <label style="text-align: center; display: block;">Select Game Mode:</label>
+            <div class="mode-btn-container">
+                <button type="button" id="mode-btn-normal" class="mode-toggle-btn active-mode" onclick="setVariantMode('normal')">normal</button>
+                <button type="button" id="mode-btn-quickplay" class="mode-toggle-btn" onclick="setVariantMode('quickplay')">quickplay</button>
             </div>
         </div>
         <div style="text-align: center; margin-top: 10px;">
@@ -201,9 +215,9 @@
         <div class="form-group">
             <label for="player-profile-select">Profile Identity:</label>
             <select id="player-profile-select">
-                <option value="Z1">Z1 - The Risky Rizzler</option>
-                <option value="Z2">Z2 - The Safe Skibidi</option>
-                <option value="Z3">Z3 - The Balanced Baller</option>
+                <option value="Z1">Z1 - The Risky Rizzler (Aggressive Risk-Taker)</option>
+                <option value="Z2">Z2 - The Safe Skibidi (Conservative Investor)</option>
+                <option value="Z3">Z3 - The Balanced Baller (Balanced Framework)</option>
             </select>
         </div>
         <button onclick="initializeTrackerDashboard()">Launch Tracker Dashboard</button>
@@ -213,7 +227,7 @@
         <div class="adaptive-nav-bar">
             <div class="nav-buttons-cluster">
                 <button class="btn-secondary" onclick="backToProfileSelection()">Back to Profiles</button>
-                <button class="btn-danger" style="background-color:#991b1b;" onclick="triggerEndGameDiscard()">End Game</button>
+                <button class="btn-danger" style="background-color:#991b1b;" onclick="triggerEndGameArchive()">End Game</button>
             </div>
             <div class="portfolio-value-banner" id="room-code-banner" style="font-size: 1.1rem; color: #cbd5e1; border: 1px solid var(--border-color); padding: 12px;">Room: ----</div>
             <div class="portfolio-value-banner">
@@ -256,6 +270,23 @@
                             </tr>
                         </thead>
                         <tbody id="buy-market-table-body"></tbody>
+                    </table>
+                </div>
+
+                <h2 style="margin-top: 30px;">Active Room Transaction History Log</h2>
+                <div class="table-responsive-wrapper">
+                    <table class="overview-table" style="font-size: 0.85rem;">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User Context</th>
+                                <th>Activity Event Type</th>
+                                <th>Core Parameters Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="room-history-table-body">
+                            <tr><td colspan="4" style="text-align: center; color: #94a3b8; font-style: italic;">No session history captured yet. Connect to a server environment.</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -326,7 +357,7 @@
         </div>
         <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
             <button class="btn-success" style="min-width: 160px;" onclick="commitConfirmedTransaction(false)">Confirm &amp; Complete</button>
-            <button class="btn-success" style="background-color: var(--warning-color); color: black; min-width: 160px;" id="confirm-multi-btn" onclick="commitConfirmedTransaction(true)">Confirm &amp; Repeat</button>
+            <button class="btn-success" style="background-color: var(--warning-color); color: black; min-width: 160px;" id="confirm-multi-btn" onclick="commitConfirmedTransaction(true)">Confirm &amp; Repeat Action</button>
             <button class="btn-secondary" style="min-width: 160px;" id="confirm-cancel-btn" onclick="showScreen('view-overview')">Cancel</button>
         </div>
     </div>
@@ -341,6 +372,59 @@
             <div id="inv-instruction" style="font-size: 0.9rem; color: #475569; border-top: 1px solid #e2e8f0; padding-top: 8px; line-height: 1.4;"></div>
         </div>
         <button class="btn-success" id="invoice-return-btn" onclick="returnToOverviewAfterInvoice()">Return to Overview Dashboard</button>
+    </div>
+
+    <div id="view-admin-datacenter" class="view-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <h2>Exclusive Administrator Analytics Data Center</h2>
+            <button class="btn-secondary" style="width: auto;" onclick="exitAdminDataCenterView()">Exit Analytics View</button>
+        </div>
+
+        <div class="stat-card-row">
+            <div class="stat-card">
+                <h4>Total Captured Rooms</h4>
+                <div id="stat-total-rooms">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>Total Operations Filtered</h4>
+                <div id="stat-total-logs">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>Most Target-Aggressive Room</h4>
+                <div id="stat-aggressive-room">None</div>
+            </div>
+        </div>
+
+        <div class="form-group" style="background: rgba(15, 23, 42, 0.4); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <h3>Data Management Controls</h3>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 12px;">Extract localized tracking logs parsed for validation audits. Use the export macros to dump cleanly formatted dataset tables into CSV / Excel structures.</p>
+            
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 15px;">
+                <button type="button" class="btn-success" style="width: auto;" onclick="exportIndividualActiveGameCSV()">Export Active Game Data Sheet</button>
+                <button type="button" class="btn-success" style="background-color: #9333ea; width: auto;" onclick="exportMasterConsolidatedGamesCSV()">Export Global Consolidated Master Sheet</button>
+            </div>
+
+            <label for="admin-room-filter-select">Scope Log View Filter (Target Room Code ID):</label>
+            <select id="admin-room-filter-select" onchange="renderAdminSelectedRoomLogsTable()"></select>
+        </div>
+
+        <h3>Dataset Registry Audit Feed</h3>
+        <div class="table-responsive-wrapper">
+            <table class="overview-table" style="font-size: 0.85rem;">
+                <thead>
+                    <tr>
+                        <th>Game ID (Room Code)</th>
+                        <th>Timestamp Timestamp</th>
+                        <th>User Identity</th>
+                        <th>Operation Type</th>
+                        <th>Logged Metric Parameter Payload</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-audit-table-body">
+                    <tr><td colspan="5" style="text-align: center; color: #94a3b8; font-style: italic;">No audit ledger records loaded. Select a matching room filter node scope above.</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -370,26 +454,26 @@
 <div id="justification-modal-overlay" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header" style="color: var(--warning-color);">Market Event Breakdown &amp; Analysis</div>
-        <div id="justification-modal-body" class="modal-body" style="max-height: 300px; overflow-y: auto;"></div>
+        <div id="justification-modal-body" class="modal-body" style="max-height: 320px; overflow-y: auto;"></div>
         <div class="modal-footer">
             <button id="justification-modal-close-btn" class="btn-success" disabled>Wait (10s)</button>
         </div>
     </div>
 </div>
 
-<script>
-    const firebaseConfig = {
-        databaseURL: "https://market-mayhem-tracker-default-rtdb.asia-southeast1.firebasedatabase.app/"
-    };
-    
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-    const rtdb = firebase.database();
+<div class="admin-floating-trigger" title="Admin Control Panel access portal" onclick="triggerAdminPasswordGate()">
+    <svg viewBox="0 0 24 24">
+        <path d="M3 5c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5zm2 0v14h14V5H5zm2 3h10v2H7V8zm0 4h10v2H7v-2zm0 4h7v2H7v-2z"/>
+    </svg>
+</div>
 
+<script>
+    // HARDCODED MP3 TARGET SOUNDS PRE-CONFIGURATION (Base64 fallback sound for standalone testing redundancy)
     const MP3_SOUNDS = [
-        "http://googleusercontent.com/file_content/0",
-        "http://googleusercontent.com/file_content/1",
-        "http://googleusercontent.com/file_content/2",
-        "http://googleusercontent.com/file_content/3"
+        "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==",
+        "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==",
+        "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==",
+        "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA=="
     ];
 
     let currentGameMode = "normal";
@@ -446,7 +530,7 @@
     const SCENARIO_DB = {
         "S1": { title: "US Fed Reserve Rate Hikes", rules: { "B1": -10, "P1": 10, "P2": 10, "P5": 10, "E7": -30, "E8": -30, "E9": -30, "E10": -30, "E11": -30, "B2": -10, "B3": -10, "F2": -25, "P3": -20, "P6": -20, "P7": -20, "E12": -65, "E13": -65, "E15": -65, "E16": -65, "E14": -15, "P4": -25, "P8": -25, "F3": -45 }, desc: "Low Risk bonds grow. Tech, Growth equities, and mixed portfolios crash heavily due to aggressive QT." },
         "S2": { title: "China Economic Stimulus", rules: { "E1": 10, "E4": 10, "F2": 30, "P6": 35, "B2": 15, "B3": 15, "E15": 50, "E16": 50, "B4": 25, "F3": 45 }, desc: "Beijing injects 4 trillion yuan. Regional Asian portfolios, corporate bonds, and hardware supply nodes surge." },
-        "S3": { title: "Global Recession Fear", rules: { "P1": 15, "P5": 15, "E3": 15, "E5": 15, "E6": 15, F2: -40, "E8": -30, "E9": -30, "E10": -30, "E11": -30, "E12": -70, "E13": -70, "E15": -70, "E16": -70, "E14": -20, "F1": 60 }, desc: "Stagflation scare. Growth items drop while physical Gold safe havens (F1) and standard staple equities move up." },
+        "S3": { title: "Global Recession Fear", rules: { "P1": 15, "P5": 15, "E3": 15, "E5": 15, "E6": 15, "F2": -40, "E8": -30, "E9": -30, "E10": -30, "E11": -30, "E12": -70, "E13": -70, "E15": -70, "E16": -70, "E14": -20, "F1": 60 }, desc: "Stagflation scare. Growth items drop while physical Gold safe havens (F1) and standard staple equities move up." },
         "S4": { title: "Global Interest Rate Cuts", rules: { "B1": 15, "P1": -10, "P5": -10, "E8": 45, "E9": 45, "E10": 45, "F2": 40, "E12": 75, "E13": 75, "E16": 75, "E14": 20, "E15": 20, "P4": 30, "P8": 30 }, desc: "Lockdowns force emergency cuts nearing 0%. Cash yields contract while software architectures and hyper-growth options pop." },
         "S5": { title: "Supply Chain Chaos", rules: { "E1": -10, "E8": -35, "E10": -35, "E11": -20, "E15": -85, "E16": -40 }, desc: "Semiconductor bottlenecks heavily penalize tech hardware lines, electronics infrastructures, and EV manufacturing pipelines." },
         "S6": { title: "Inflation Shock", rules: { "E3": 10, "E5": 10, "E6": 10, "B1": -5, "E10": -30, "E11": -30, "F2": -40, "E13": -50, "E16": -45, "F1": 50 }, desc: "Valuations face compression. Consumer staple monopolies maintain strength while Gold hedges fiat debasement." },
@@ -458,29 +542,6 @@
         "S12": { title: "Healthcare Boom", rules: { "E3": 45, "E5": -10, "E6": -10, "E11": -30, "P3": 10, "E14": +15, "E15": -65 }, desc: "Pandemic vaccine and therapeutic production cycles generate high health sector expansion." },
         "S13": { title: "Consumer Spending Boom", rules: { "E2": 5, "E6": 15, "E10": 20, "E11": 25, "F2": 30, "B4": 15 }, desc: "Post-lockdown revenge spending spikes transaction and distribution volumes across retail apparel and mobility networks." },
         "S14": { title: "Energy Sector Collapse", rules: { "E5": 10, "E6": 10, "E9": 35, "E11": -25, "F1": 45, "B4": -30, "F3": -25 }, desc: "Lockdowns freeze travel. Oil hits negative values, breaking old fossil high-yield energy bonds while software structures stay safe." }
-    };
-
-    const ACTION_DB_INFO = {
-        "A1":  "A1: Researching — Good investors study the market, read corporate profiles, and evaluate macroeconomic trends before making decisions rather than guessing. \nEffect: Secretly peek at the top 2 cards of the Market Scenario deck, then place them back on top in any order you choose.",
-        "A2":  "A2: Dollar-Cost Averaging — Investing fixed amounts regularly lowers your average purchase cost over time and removes the stress of trying to time the market perfectly. \nEffect: Place this card next to your player profile. Gain an additional +$50 cash from the bank at the end of each round for the next 3 rounds.",
-        "A3":  "A3: Diversification — Spreading your capital across different asset classes and risk spectrums ensures a single market crash won't wipe out your entire portfolio. \nEffect: Play this card when a negative Market Scenario is revealed. Reduce your total portfolio losses by 50% for this round.",
-        "A4":  "A4: Market Research — Understanding industry cycles and consumer demand trends allows you to capture outsized returns when specific sectors experience major tailwinds. \nEffect: Choose one asset sector: Healthcare, Tech, Financial, Consumer, or Energy. All investments within that chosen sector gain double their positive payout value on the next scenario card.",
-        "A5":  "A5: Emergency Savings — Maintaining a cash safety buffer protects your long-term wealth, preventing you from being forced to sell off assets during tough economic times. \nEffect: Play this card immediately after a negative Market Scenario. Recover $100 cash instantly from the bank to offset your losses.",
-        "A6":  "A6: Safe Haven — Allocating funds into high-quality defensive instruments, such as Treasury bonds or stable value funds, preserves capital when market volatility spikes. \nEffect: Select any 1 investment asset in your portfolio. That specific asset is 100% immune to all financial losses for the next round.",
-        "A7":  "A7: Cashback Reward — Utilizing smart banking features, card rewards, and high-yield savings accounts provides consistent cash rebates that can be funneled back into your investments. \nEffect: Instantly receive a flat +$50 cash bonus directly from the bank.",
-        "A8":  "A8: Rebalance Portfolio — Periodically adjusting your portfolio weights keeps your investments aligned with your long-term goals and risk tolerance as asset prices shift. \nEffect: Swap any 1 investment asset you currently own with 1 active investment asset available on the open board. Pay or receive the difference in card costs.",
-        "A9":  "A9: Hedge Funds — Implementing risk-management strategies or holding uncorrelated defensive positions cushions your downside exposure during extreme global economic downturns. \nEffect: Play this card to completely cancel out the single largest financial asset loss you would take during the next scenario card round.",
-        "A10": "A10: Investment Strategy — Sticking to a disciplined, long-term plan allows businesses time to compound their earnings, helping you capture massive compounding milestones. \nEffect: Choose 1 asset you own. For the next 2 rounds, its baseline Base Growth per Round value is completely doubled.",
-        "A11": "A11: Bad Advice — Relying on unverified social media influencers, hype channels, or unqualified tipsters usually leads to poor financial entries and severe losses. \nEffect: Target an opponent. Their total investment returns from the next positive Market Scenario card are slashed by 50%.",
-        "A12": "A12: Overconfidence — Believing a few lucky wins means you can predict market directions flawlessly leads to taking on dangerously high leverage and breaking your safety rules. \nEffect: Target an opponent. For the next Market Scenario card, all of that player's investment gains are doubled, but all of their investment losses are also doubled.",
-        "A13": "A13: Panic Sell — Reacting emotionally to short-term market corrections by dumping high-quality assets at the absolute bottom permanently locks in your paper losses. \nEffect: Target an opponent. Force them to immediately sell any 1 asset from their portfolio back to the board for only 50% of its original card cost.",
-        "A14": "A14: FOMO (Fear Of Missing Out) — Chasing social media hype and market momentum results in buying overvalued, highly volatile companies right at the peak of an asset bubble. \nEffect: Target an opponent. On their next turn, they must spend their cash to buy a High-Risk (🔴) asset from the board, if capital permits.",
-        "A15": "A15: Greed — Refusing to secure profits or scale back speculative positions during an intense market rally leaves your portfolio wide open to the eventual crash. \nEffect: Target an opponent. If the next scenario card is a negative event, that player's total portfolio losses are completely doubled for the round.",
-        "A16": "A16: Market Rumour — Making large trading changes based on unverified chatroom gossip, fear-mongering, or unbacked headlines introduces massive structural risk. \nEffect: Declare one asset sector: Healthcare, Tech, Financial, Consumer, or Energy. Any investment card in that sector suffers double losses during the next negative scenario.",
-        "A17": "A17: Revenge Trading — Trying to recover previous investment losses by immediately launching into impulsive, larger-risk positions often spirals into catastrophic portfolio damage. \nEffect: Target an opponent. If they suffer a loss during the next Market Scenario, they must pay an additional -$100 cash penalty to the bank.",
-        "A18": "A18: Analysis Paralysis — Waiting endlessly for the 'perfect moment' to invest leaves your cash sitting idle, allowing inflation to slowly erode your real purchasing power. \nEffect: Target an opponent. That player is entirely blocked from purchasing or bidding on any new assets from the board during their next turn.",
-        "A19": "A19: Financial Scams — Falling for unregulated offshore platforms or 'guaranteed high return' traps results in your capital being frozen or lost to bad actors. \nEffect: Target an opponent. That player's assets fail to generate payouts next round; they skip their next dividend/payout cycle entirely.",
-        "A20": "A20: Lifestyle Creep — Upgrading your discretionary personal expenses the exact moment your income rises instead of investing the surplus permanently delays financial freedom. \nEffect: Target an opponent. They must immediately pay a -$100 cash fee to the bank, simulating uninvested, inflated luxury lifestyle spending."
     };
 
     let lobbyRoomCode = "";
@@ -499,18 +560,45 @@
         initializeLocalMarketPrices();
     };
 
-    function toggleGameModeData(mode) {
+    function setVariantMode(mode) {
         currentGameMode = mode;
         PROFILE_DB = PROFILE_DB_VARIANTS[mode];
+        document.getElementById("mode-btn-normal").classList.remove("active-mode");
+        document.getElementById("mode-btn-quickplay").classList.remove("active-mode");
+        if (mode === "normal") {
+            document.getElementById("mode-btn-normal").classList.add("active-mode");
+        } else {
+            document.getElementById("mode-btn-quickplay").classList.add("active-mode");
+        }
     }
 
-    function playRandomTargetSound() {
+    function generateUnusedRoomID() {
+        let code = "";
+        for (let i = 0; i < 4; i++) {
+            code += Math.floor(Math.random() * 10).toString();
+        }
+        document.getElementById("input-lobby-code").value = code;
+    }
+
+    function pushSessionActionLog(type, paramDesc) {
+        if (!lobbyRoomCode) return;
+        let ts = new Date().toLocaleTimeString();
+        let logNode = {
+            timestamp: ts,
+            user: playerUsername || "System Administrator",
+            eventType: type,
+            payload: paramDesc
+        };
+        rtdb.ref(`rooms/${lobbyRoomCode}/logs`).push(logNode);
+    }
+
+    function playTargetSoundEffect() {
         try {
-            let randomIndex = Math.floor(Math.random() * MP3_SOUNDS.length);
-            let audio = new Audio(MP3_SOUNDS[randomIndex]);
-            audio.play();
+            let randIdx = Math.floor(Math.random() * MP3_SOUNDS.length);
+            let audioNode = new Audio(MP3_SOUNDS[randIdx]);
+            audioNode.play().catch(err => console.log("Audio play blocked by security frame policy:", err));
         } catch(e) {
-            console.log("Audio playback failed or blocked: ", e);
+            console.error("Audio engine context failure:", e);
         }
     }
 
@@ -530,8 +618,10 @@
     function showScreen(screenId) {
         document.querySelectorAll('.view-panel').forEach(view => view.classList.remove('active-view'));
         document.getElementById(screenId).classList.add('active-view');
-        renderPortfolioTable();
-        renderBuyMarketBoard();
+        if (screenId === 'view-overview') {
+            renderPortfolioTable();
+            renderBuyMarketBoard();
+        }
     }
 
     function savePlayerSession() {
@@ -558,18 +648,14 @@
         showScreen("view-setup");
 
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}`).update({
-            activeModifiers: { badAdvice: false, overconfidence: false, greed: false, marketRumourSector: "", textPayload: "" }
+            activeModifiers: { badAdvice: false, overconfidence: false, greed: false, marketRumourSector: "", textPayload: "", randomNonceTrigger: 0 }
         });
 
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/portfolio`).once('value', (snapshot) => {
-            if (snapshot.exists()) {
-                ownedAssetInstances = snapshot.val() || [];
-            }
+            if (snapshot.exists()) { ownedAssetInstances = snapshot.val() || []; }
         });
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/instanceCounter`).once('value', (snapshot) => {
-            if (snapshot.exists()) {
-                instanceIdCounter = snapshot.val() || 1001;
-            }
+            if (snapshot.exists()) { instanceIdCounter = snapshot.val() || 1001; }
         });
 
         rtdb.ref(`rooms/${lobbyRoomCode}/marketState`).once('value', (snapshot) => {
@@ -581,18 +667,23 @@
             }
         });
 
+        // VICTIM ATTACK PROPAGATION LISTENER
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers`).on('value', (snap) => {
             if (snap.exists()) {
                 let remoteMods = snap.val();
-                let triggered = false;
-                if (remoteMods.badAdvice) { activePlayerModifiers.badAdvice = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/badAdvice`).set(false); openCustomModal("Target Alert", "Another player hit you with Bad Advice! (A11 applied)", false); triggered = true; }
-                if (remoteMods.overconfidence) { activePlayerModifiers.overconfidence = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/overconfidence`).set(false); openCustomModal("Target Alert", "Another player hit you with Overconfidence! (A12 applied)", false); triggered = true; }
-                if (remoteMods.greed) { activePlayerModifiers.greed = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/greed`).set(false); openCustomModal("Target Alert", "Another player hit you with Greed! (A15 applied)", false); triggered = true; }
-                if (remoteMods.marketRumourSector) { activePlayerModifiers.marketRumourSector = remoteMods.marketRumourSector; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/marketRumourSector`).set(""); openCustomModal("Target Alert", `Another player hit you with Market Rumour on sector: ${remoteMods.marketRumourSector}! (A16 applied)`, false); triggered = true; }
-                if (remoteMods.textPayload) { openCustomModal("Target Alert", `You have been targeted by an opponent card effect:\n\n"${remoteMods.textPayload}"`, false); rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/textPayload`).set(""); triggered = true; }
+                let triggeredSound = false;
                 
-                if (triggered) {
-                    playRandomTargetSound();
+                if (remoteMods.badAdvice) { activePlayerModifiers.badAdvice = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/badAdvice`).set(false); openCustomModal("Target Alert", "Another player hit you with Bad Advice! (A11 applied)", false); triggeredSound = true; }
+                if (remoteMods.overconfidence) { activePlayerModifiers.overconfidence = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/overconfidence`).set(false); openCustomModal("Target Alert", "Another player hit you with Overconfidence! (A12 applied)", false); triggeredSound = true; }
+                if (remoteMods.greed) { activePlayerModifiers.greed = true; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/greed`).set(false); openCustomModal("Target Alert", "Another player hit you with Greed! (A15 applied)", false); triggeredSound = true; }
+                if (remoteMods.marketRumourSector) { activePlayerModifiers.marketRumourSector = remoteMods.marketRumourSector; rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/marketRumourSector`).set(""); openCustomModal("Target Alert", `Another player hit you with Market Rumour on sector: ${remoteMods.marketRumourSector}! (A16 applied)`, false); triggeredSound = true; }
+                if (remoteMods.textPayload) { openCustomModal("Target Alert", `You have been targeted by an opponent card effect:\n\n"${remoteMods.textPayload}"`, false); rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/textPayload`).set(""); triggeredSound = true; }
+                
+                if (triggeredSound || remoteMods.randomNonceTrigger > 0) {
+                    if (remoteMods.randomNonceTrigger > 0) {
+                        rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/randomNonceTrigger`).set(0);
+                    }
+                    playTargetSoundEffect();
                 }
                 renderPortfolioTable();
             }
@@ -615,6 +706,27 @@
             let val = snap.val();
             if (val) { executeScenarioLogicLocally(val); }
         });
+
+        // REAL-TIME OVERVIEW FEED LOG TABLE PIPELINE
+        rtdb.ref(`rooms/${lobbyRoomCode}/logs`).on('value', (snap) => {
+            const tbody = document.getElementById("room-history-table-body");
+            if (!tbody) return;
+            if (snap.exists()) {
+                tbody.innerHTML = "";
+                let logsObj = snap.val();
+                let logsArr = Object.values(logsObj).reverse(); // Show latest on top
+                logsArr.slice(0, 15).forEach(l => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><span style="color:#94a3b8;">${l.timestamp}</span></td>
+                            <td><strong>${l.user}</strong></td>
+                            <td><span class="risk-badge" style="background:#475569;">${l.eventType}</span></td>
+                            <td>${l.payload}</td>
+                        </tr>
+                    `;
+                });
+            }
+        });
     }
 
     function isDontCard(key) {
@@ -630,8 +742,7 @@
         for (let pName in playersList) {
             if (pName !== playerUsername) {
                 let opt = document.createElement("option");
-                opt.value = pName;
-                opt.innerText = pName;
+                opt.value = pName; opt.innerText = pName;
                 select.appendChild(opt);
                 count++;
             }
@@ -648,10 +759,7 @@
         let pId = document.getElementById("player-profile-select").value;
         chosenProfile = PROFILE_DB[pId];
         document.getElementById("profile-text-desc").innerText = chosenProfile.desc;
-        
-        renderPortfolioTable();
-        renderBuyMarketBoard();
-        checkGoalCompliance();
+        pushSessionActionLog("PROFILE_SELECT", `Selected Identity alignment profile card: ${pId}`);
         showScreen("view-overview");
     }
 
@@ -665,7 +773,6 @@
     function previewActionInfo() {
         let key = document.getElementById("action-select").value;
         document.getElementById("action-preview-text").innerText = (key && ACTION_DB_INFO[key]) ? ACTION_DB_INFO[key] : "";
-        
         if (isDontCard(key)) {
             document.getElementById("target-player-group").style.display = "block";
         } else {
@@ -692,15 +799,14 @@
         overlay.classList.add("active-modal");
     }
 
-    function triggerEndGameDiscard() {
+    function triggerEndGameArchive() {
         openCustomModal(
-            "Wipe & Discard Room ID?", 
-            `CRITICAL WARNING:\nConfirming this action deletes the shared Room ID [${lobbyRoomCode}] from the servers.\n\nThis immediately resets ALL active players. Proceed?`, 
+            "Finalize & Lock Session?", 
+            `Confirm finalization of Room ID [${lobbyRoomCode}]?\n\nSession variables will freeze, preserving history database assets inside the master log schema.`, 
             true, 
             () => {
-                rtdb.ref(`rooms/${lobbyRoomCode}`).remove().then(() => {
-                    location.reload();
-                });
+                pushSessionActionLog("SESSION_END", "Game terminated by player deployment.");
+                location.reload();
             }
         );
     }
@@ -802,11 +908,13 @@
             document.getElementById("inv-type").innerText = "ASSET PURCHASE SECURED (BUY)";
             document.getElementById("inv-cash-flow").innerText = `-$${price}`; document.getElementById("inv-cash-flow").style.color = "var(--danger-color)";
             document.getElementById("inv-instruction").innerText = `BANK NOTIFICATION: Pay $${price} cash to banker. Tokens go UNDER the physical layout card.`;
+            pushSessionActionLog("ASSET_BUY", `Secured registration of asset ${cardId} at transaction cost price $${price}`);
         } else {
             let targetIdx = ownedAssetInstances.findIndex(x => x.instanceId === originalInstanceId); if (targetIdx !== -1) ownedAssetInstances.splice(targetIdx, 1);
             document.getElementById("inv-type").innerText = "ASSET PORTFOLIO LIQUIDATION (SELL)";
             document.getElementById("inv-cash-flow").innerText = `+$${price}`; document.getElementById("inv-cash-flow").style.color = "var(--success-color)";
             document.getElementById("inv-instruction").innerText = `BANK NOTIFICATION: Return physical card layout. Banker pays player back $${price} from card cache notes.`;
+            pushSessionActionLog("ASSET_SELL", `Liquidated asset instance #${originalInstanceId} ([${cardId}]) collecting payout value $${price}`);
         }
         document.getElementById("inv-asset").innerText = cardId;
         
@@ -831,8 +939,7 @@
         document.getElementById("input-modal-title").innerText = title;
         document.getElementById("input-modal-body").innerText = body;
         const field = document.getElementById("input-modal-field");
-        field.value = "";
-        field.placeholder = placeholder || "";
+        field.value = ""; field.placeholder = placeholder || "";
         field.type = (placeholder && placeholder.toLowerCase().includes("id")) ? "number" : "text";
         const overlay = document.getElementById("input-modal-overlay");
         const btnConfirm = document.getElementById("input-modal-confirm");
@@ -860,10 +967,14 @@
             let targetedPlayer = document.getElementById("target-player-select").value;
             if (!targetedPlayer) { openCustomModal("Selection Error", "No other opponent player registered to target inside this room space.", false); return; }
             
+            // ATTACKER TRIGGER AUDIO ACTION SYNC
+            playTargetSoundEffect();
+
             if (cardKey === "A16") {
                 openInputModal("A16: Target Sector Attack", "Type the target sector for your opponent's holdings:", "Tech / Consumer / Healthcare / Financial / Energy", (val) => {
                     let sect = val.trim(); if (!sect) return;
-                    rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update({ marketRumourSector: sect });
+                    rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update({ marketRumourSector: sect, randomNonceTrigger: Date.now() });
+                    pushSessionActionLog("ACTION_PLAY_ATTACK", `Played ${cardKey} targeting ${targetedPlayer} focusing on sector variance [${sect}]`);
                     openCustomModal("Attack Deployed", `Sent Market Rumour (${sect}) directly to player ${targetedPlayer}!`, false);
                     resetActionSelectionFields();
                 });
@@ -875,8 +986,10 @@
                 else {
                     nodeUpdate = { textPayload: `Card ${cardKey} has been activated directly against your portfolio rules by an opponent!` };
                 }
+                nodeUpdate.randomNonceTrigger = Date.now();
                 
                 rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update(nodeUpdate);
+                pushSessionActionLog("ACTION_PLAY_ATTACK", `Played offensive card ${cardKey} targeting player node: ${targetedPlayer}`);
                 openCustomModal("Attack Deployed", `Successfully casted Action ${cardKey} targeting player ${targetedPlayer}!`, false);
                 resetActionSelectionFields();
             }
@@ -885,6 +998,7 @@
 
         if (cardKey === "A3") { 
             activePlayerModifiers.diversification = true; 
+            pushSessionActionLog("ACTION_PLAY_DEFENSE", "Played A3 Diversification framework protection.");
             if (lastExecutedScenarioKey) {
                 openCustomModal("A3 Activated Retroactively", "A3 Diversification logged! Modifying value points on current scenario retroactively.", false);
                 recomputeScenarioWithA3(lastExecutedScenarioKey);
@@ -893,6 +1007,7 @@
             }
         }
         else if (cardKey === "A1" || cardKey === "A2" || cardKey === "A4" || cardKey === "A5" || cardKey === "A7") {
+            pushSessionActionLog("ACTION_PLAY_UTILITY", `Played utility modifier card sequence: ${cardKey}`);
             openCustomModal("Action Logged Successfully", `${cardKey} parameters activated. Log transaction with physical dealer boards if required.`, false);
         }
         else if (cardKey === "A6") {
@@ -900,11 +1015,12 @@
             let t = "Type the Instance ID to protect:\n\n"; ownedAssetInstances.forEach(i => { t += `#${i.instanceId}: [${i.cardId}] ${i.name}\n`; });
             openInputModal("A6: Safe Haven", t, "e.g. 1001", (val) => {
                 let tid = parseInt(val); let m = ownedAssetInstances.find(x => x.instanceId === tid);
-                if (m) { m.tags.immune = true; openCustomModal("Action Card Logged", `Instance #${tid} is now immune from the next value shock drop.`, false); }
-                else { openCustomModal("Invalid ID", "No matching instance found. Action cancelled.", false); }
-                resetActionSelectionFields();
-                savePlayerSession();
-                renderPortfolioTable();
+                if (m) {
+                    m.tags.immune = true; 
+                    pushSessionActionLog("ACTION_PLAY_DEFENSE", `Applied A6 Safe Haven immunization protection to Instance #${tid}`);
+                    openCustomModal("Action Card Logged", `Instance #${tid} is now immune from the next value shock drop.`, false);
+                } else { openCustomModal("Invalid ID", "No matching instance found. Action cancelled.", false); }
+                resetActionSelectionFields(); savePlayerSession(); renderPortfolioTable();
             }); return;
         }
         else if (cardKey === "A8") {
@@ -917,34 +1033,33 @@
                     let diff = oldInst.currentValue - (globalMarketPrices[newCode] || ASSET_TEMPLATES[newCode].cost);
                     ownedAssetInstances.splice(ownedAssetInstances.findIndex(x => x.instanceId === oldId), 1);
                     ownedAssetInstances.push({ instanceId: instanceIdCounter++, cardId: newCode, name: ASSET_TEMPLATES[newCode].name, risk: ASSET_TEMPLATES[newCode].risk, boughtPrice: (globalMarketPrices[newCode] || ASSET_TEMPLATES[newCode].cost), currentValue: (globalMarketPrices[newCode] || ASSET_TEMPLATES[newCode].cost), netChange: 0, sector: ASSET_TEMPLATES[newCode].sector, tags: { immune: false, doubleGrowth: false } });
+                    
+                    pushSessionActionLog("ACTION_REBALANCE", `Executed A8 portfolio swap rebalance discarding #${oldId} for new asset copy ${newCode}`);
                     document.getElementById("inv-type").innerText = "PORTFOLIO REBALANCE SWAP (A8)";
                     document.getElementById("inv-asset").innerText = `Traded #${oldId} away for a new copy of [${newCode}]`;
                     document.getElementById("inv-cash-flow").innerText = (diff >= 0 ? "+" : "-") + `$${Math.abs(diff)}`;
                     document.getElementById("inv-cash-flow").style.color = diff >= 0 ? "var(--success-color)" : "var(--danger-color)";
                     document.getElementById("inv-instruction").innerText = diff >= 0 ? `Collect exactly +$${diff} from banker.` : `Hand exactly $${Math.abs(diff)} to banker.`;
-                    resetActionSelectionFields();
-                    savePlayerSession();
-                    showScreen("view-invoice");
+                    resetActionSelectionFields(); savePlayerSession(); showScreen("view-invoice");
                 });
             }); return;
         }
-        else if (cardKey === "A9") { activePlayerModifiers.hedgeFunds = true; openCustomModal("Action Card Logged", "Hedge funds active.", false); }
+        else if (cardKey === "A9") { activePlayerModifiers.hedgeFunds = true; pushSessionActionLog("ACTION_PLAY_DEFENSE", "Logged A9 Hedge Funds downside insulation mitigation."); openCustomModal("Action Card Logged", "Hedge funds active.", false); }
         else if (cardKey === "A10") {
             if (ownedAssetInstances.length === 0) return;
             let t = "Type the Instance ID to apply double growth:\n\n"; ownedAssetInstances.forEach(i => { t += `ID #${i.instanceId} : [${i.cardId}]\n`; });
             openInputModal("A10: Investment Strategy", t, "e.g. 1001", (val) => {
                 let tid = parseInt(val); let m = ownedAssetInstances.find(x => x.instanceId === tid);
-                if (m) { m.tags.doubleGrowth = true; openCustomModal("Action Card Logged", "Instance set to generate double growth round speeds.", false); }
-                else { openCustomModal("Invalid ID", "No matching instance found. Action cancelled.", false); }
-                resetActionSelectionFields();
-                savePlayerSession();
-                renderPortfolioTable();
+                if (m) {
+                    m.tags.doubleGrowth = true; 
+                    pushSessionActionLog("ACTION_PLAY_UTILITY", `Applied A10 Strategy compounding acceleration boost onto target instance #${tid}`);
+                    openCustomModal("Action Card Logged", "Instance set to generate double growth round speeds.", false);
+                } else { openCustomModal("Invalid ID", "No matching instance found. Action cancelled.", false); }
+                resetActionSelectionFields(); savePlayerSession(); renderPortfolioTable();
             }); return;
         }
 
-        resetActionSelectionFields();
-        savePlayerSession();
-        renderPortfolioTable();
+        resetActionSelectionFields(); savePlayerSession(); renderPortfolioTable();
     }
 
     function triggerScenarioConfirmation() {
@@ -963,6 +1078,7 @@
                 if (nextMarketPriceState[code] < 0) nextMarketPriceState[code] = 0;
             }
 
+            pushSessionActionLog("SCENARIO_BROADCAST", `Executed macro market scenario card callout: [${key}] ${scenario.title}`);
             rtdb.ref(`rooms/${lobbyRoomCode}`).update({
                 marketState: nextMarketPriceState,
                 activeScenarioTrigger: key + "_" + Date.now()
@@ -977,7 +1093,6 @@
         
         let htmlContent = `<div style="margin-bottom:12px;"><strong>Global Economic Shifter:</strong> ${scenario.title}</div>`;
         let standardOrganicGrowthOccurred = true;
-        
         let internalExplanationLogs = [];
         
         ownedAssetInstances.forEach(inst => {
@@ -997,7 +1112,6 @@
         }
 
         modalBody.innerHTML = htmlContent;
-        
         closeBtn.disabled = true;
         let count = 10;
         closeBtn.innerText = `Understand (${count}s)`;
@@ -1016,9 +1130,7 @@
             }
         }, 1000);
         
-        closeBtn.onclick = function() {
-            overlay.classList.remove("active-modal");
-        };
+        closeBtn.onclick = function() { overlay.classList.remove("active-modal"); };
     }
 
     function executeScenarioLogicLocally(triggerString) {
@@ -1088,17 +1200,12 @@
                 let originalLoss = inst.netChange;
                 let mitigatedLoss = Math.floor(originalLoss * 0.5);
                 let recoveryAdjustment = mitigatedLoss - originalLoss; 
-                
-                inst.currentValue += recoveryAdjustment;
-                inst.netChange = mitigatedLoss;
+                inst.currentValue += recoveryAdjustment; inst.netChange = mitigatedLoss;
                 if (inst.currentValue < 0) inst.currentValue = 0;
             }
         });
         activePlayerModifiers.diversification = false;
-        savePlayerSession();
-        renderPortfolioTable();
-        renderBuyMarketBoard();
-        checkGoalCompliance();
+        savePlayerSession(); renderPortfolioTable(); renderBuyMarketBoard(); checkGoalCompliance();
     }
 
     function checkGoalCompliance() {
@@ -1126,6 +1233,153 @@
             ind.innerText = "Objective Parameters Unmet"; ind.className = "goal-indicator goal-not-met";
             document.body.classList.remove("goal-achieved");
         }
+    }
+
+    /* -------------------------------------------------------------------------
+       ADMIN DATA CENTER ANALYTICS & CSV DATA EXPORT MANAGEMENT ENGINE ARCHITECTURE
+       ------------------------------------------------------------------------- */
+    let cachedGlobalRoomsDataset = {};
+
+    function triggerAdminPasswordGate() {
+        openInputModal("Administrator Authentication Required", "Enter security credential sequence key to unlock the data engine framework:", "🔒 Enter Password", (passwordInput) => {
+            if (passwordInput === "9999") {
+                launchAdminDataCenterWorkspace();
+            } else {
+                openCustomModal("Authentication Denied", "Invalid administrative credentials.", false);
+            }
+        });
+    }
+
+    function launchAdminDataCenterWorkspace() {
+        rtdb.ref("rooms").once("value", (snapshot) => {
+            if (snapshot.exists()) {
+                cachedGlobalRoomsDataset = snapshot.val();
+                populateAdminRoomFilterControls(cachedGlobalRoomsDataset);
+                computeAdminHighValueMetrics(cachedGlobalRoomsDataset);
+                showScreen("view-admin-datacenter");
+                document.getElementById("view-admin-datacenter").classList.add("active-view");
+            } else {
+                openCustomModal("No Data Found", "No active or recorded server room instances found.", false);
+            }
+        });
+    }
+
+    function exitAdminDataCenterView() {
+        document.getElementById("view-admin-datacenter").classList.remove("active-view");
+        showScreen("view-overview");
+    }
+
+    function populateAdminRoomFilterControls(dataset) {
+        let select = document.getElementById("admin-room-filter-select");
+        select.innerHTML = "";
+        let roomsKeys = Object.keys(dataset);
+        roomsKeys.forEach(rk => {
+            let opt = document.createElement("option");
+            opt.value = rk; opt.innerText = `Room Asset Block Reference ID: ${rk}`;
+            select.appendChild(opt);
+        });
+        if (roomsKeys.length > 0) {
+            select.value = lobbyRoomCode || roomsKeys[0];
+            renderAdminSelectedRoomLogsTable();
+        }
+    }
+
+    function computeAdminHighValueMetrics(dataset) {
+        let keys = Object.keys(dataset);
+        document.getElementById("stat-total-rooms").innerText = keys.length;
+        
+        let grandLogCount = 0;
+        let mostAggressiveRoomKey = "None";
+        let maxRoomAttackCount = -1;
+
+        keys.forEach(k => {
+            if (dataset[k].logs) {
+                let currentLogs = Object.values(dataset[k].logs);
+                grandLogCount += currentLogs.length;
+                let attackOpsCount = currentLogs.filter(l => l.eventType === "ACTION_PLAY_ATTACK").length;
+                if (attackOpsCount > maxRoomAttackCount && attackOpsCount > 0) {
+                    maxRoomAttackCount = attackOpsCount;
+                    mostAggressiveRoomKey = `${k} (${attackOpsCount} attacks)`;
+                }
+            }
+        });
+        document.getElementById("stat-total-logs").innerText = grandLogCount;
+        document.getElementById("stat-aggressive-room").innerText = mostAggressiveRoomKey;
+    }
+
+    function renderAdminSelectedRoomLogsTable() {
+        let selectedRoomKey = document.getElementById("admin-room-filter-select").value;
+        const tbody = document.getElementById("admin-audit-table-body");
+        if (!tbody || !selectedRoomKey || !cachedGlobalRoomsDataset[selectedRoomKey]) return;
+
+        tbody.innerHTML = "";
+        if (cachedGlobalRoomsDataset[selectedRoomKey].logs) {
+            let logsObj = cachedGlobalRoomsDataset[selectedRoomKey].logs;
+            Object.values(logsObj).forEach(l => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${selectedRoomKey}</strong></td>
+                        <td>${l.timestamp}</td>
+                        <td><span style="color:var(--warning-color);">${l.user}</span></td>
+                        <td><span class="risk-badge" style="background:var(--accent-color);">${l.eventType}</span></td>
+                        <td>${l.payload}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8; font-style: italic;">No specific structural ledger activity logged inside this room ID code block.</td></tr>`;
+        }
+    }
+
+    function exportIndividualActiveGameCSV() {
+        let targetRoomKey = document.getElementById("admin-room-filter-select").value;
+        if (!targetRoomKey || !cachedGlobalRoomsDataset[targetRoomKey] || !cachedGlobalRoomsDataset[targetRoomKey].logs) {
+            openCustomModal("Export Aborted", "No structural ledger activity logs recorded inside this specific room node block destination to export.", false);
+            return;
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Game ID (Room Code),Timestamp,User Identity,Operation Action Type,Logged Metric Parameter Payload\n";
+
+        let logsObj = cachedGlobalRoomsDataset[targetRoomKey].logs;
+        Object.values(logsObj).forEach(l => {
+            let cleanPayload = l.payload.replace(/"/g, '""');
+            csvContent += `"${targetRoomKey}","${l.timestamp}","${l.user}","${l.eventType}","${cleanPayload}"\n`;
+        });
+
+        triggerCSVBlobDownload(`Room_${targetRoomKey}_Activity_Dataset.csv`, csvContent);
+    }
+
+    function exportMasterConsolidatedGamesCSV() {
+        if (Object.keys(cachedGlobalRoomsDataset).length === 0) {
+            openCustomModal("Export Aborted", "Master dictionary registry dataset empty.", false);
+            return;
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Game ID (Room Code),Timestamp,User Identity,Operation Action Type,Logged Metric Parameter Payload\n";
+
+        Object.keys(cachedGlobalRoomsDataset).forEach(roomKey => {
+            if (cachedGlobalRoomsDataset[roomKey].logs) {
+                let logsObj = cachedGlobalRoomsDataset[roomKey].logs;
+                Object.values(logsObj).forEach(l => {
+                    let cleanPayload = l.payload.replace(/"/g, '""');
+                    csvContent += `"${roomKey}","${l.timestamp}","${l.user}","${l.eventType}","${cleanPayload}"\n`;
+                });
+            }
+        });
+
+        triggerCSVBlobDownload("Market_Mayhem_Master_Consolidated_Ledger.csv", csvContent);
+    }
+
+    function triggerCSVBlobDownload(filename, encodedContent) {
+        let targetUri = encodeURI(encodedContent);
+        let anchorDownloadElement = document.createElement("a");
+        anchorDownloadElement.setAttribute("href", targetUri);
+        anchorDownloadElement.setAttribute("download", filename);
+        document.body.appendChild(anchorDownloadElement);
+        anchorDownloadElement.click();
+        document.body.removeChild(anchorDownloadElement);
     }
 </script>
 </body>

@@ -152,7 +152,7 @@
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
         .modal-footer button { width: auto; padding: 10px 20px; }
 
-        .admin-floating-trigger { position: fixed; bottom: 20px; right: 20px; background: #9333ea; border: 2px solid #a855f7; width: 56px; height: 56px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(147, 51, 234, 0.5); z-index: 99999; transition: transform 0.2s ease; }
+        .admin-floating-trigger { position: fixed; bottom: 20px; right: 20px; background: #9333ea; border: 2px solid #a855f7; width: 56px; height: 56px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(147, 51, 234, 0.5); z-index: 99999; transition: transform 0.2s ease; display: flex !important; }
         .admin-floating-trigger:hover { transform: scale(1.1); background: #a855f7; }
         .admin-floating-trigger svg { width: 26px; height: 26px; fill: white; }
 
@@ -426,6 +426,8 @@
     </div>
 </div>
 
+<div id="mm-network-audio-bridge" style="display: none; width: 0px; height: 0px; visibility: hidden; opacity: 0; pointer-events: none;"></div>
+
 <div id="input-modal-overlay" class="modal-overlay">
     <div class="modal-box">
         <div id="input-modal-title" class="modal-header">Input Required</div>
@@ -459,25 +461,25 @@
     </div>
 </div>
 
-<div class="admin-floating-trigger" title="Admin Control Panel access portal" onclick="triggerAdminPasswordGate()">
+<div id="admin-floating-notepad-btn" class="admin-floating-trigger" title="Admin Control Panel access portal" onclick="triggerAdminPasswordGate()">
     <svg viewBox="0 0 24 24">
         <path d="M3 5c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5zm2 0v14h14V5H5zm2 3h10v2H7V8zm0 4h10v2H7v-2zm0 4h7v2H7v-2z"/>
     </svg>
 </div>
 
 <script>
-    // Config path default mapping infrastructure
     const firebaseConfig = {
         databaseURL: "https://market-mayhem-tracker-default-rtdb.asia-southeast1.firebasedatabase.app/"
     };
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const rtdb = firebase.database();
 
-    const MP3_SOUNDS = [
-        "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==",
-        "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==",
-        "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==",
-        "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA=="
+    // TARGET EXPLICIT YOUTUBE VIDEO STRING ID MAPS (Drawn directly from your links)
+    const YOUTUBE_VIDEO_IDS = [
+        "CQeezCdF4mk", // Bruh
+        "D2_r4q2imnQ", // Fart
+        "7pLHJBxhO9o", // Sad Trombone
+        "2J_LnGdDl5g"  // Aughhh
     ];
 
     let currentGameMode = "normal";
@@ -582,6 +584,12 @@
     let activePlayerModifiers = { diversification: false, hedgeFunds: false, badAdvice: false, overconfidence: false, greed: false, marketRumourSector: null };
     let activeTransactionStaging = { type: "", cardId: "", instanceId: null, executionPrice: 0 };
 
+    window.onload = function() {
+        populateScenarioOptions();
+        initializeLocalMarketPrices();
+        showScreen("view-gateway");
+    };
+
     function setVariantMode(mode) {
         currentGameMode = mode;
         PROFILE_DB = PROFILE_DB_VARIANTS[mode];
@@ -596,31 +604,33 @@
 
     function generateUnusedRoomID() {
         let code = "";
-        for (let i = 0; i < 4; i++) {
-            code += Math.floor(Math.random() * 10).toString();
-        }
+        for (let i = 0; i < 4; i++) { code += Math.floor(Math.random() * 10).toString(); }
         document.getElementById("input-lobby-code").value = code;
     }
 
     function pushSessionActionLog(type, paramDesc) {
         if (!lobbyRoomCode) return;
         let ts = new Date().toLocaleTimeString();
-        let logNode = {
-            timestamp: ts,
-            user: playerUsername || "System Administrator",
-            eventType: type,
-            payload: paramDesc
-        };
-        rtdb.ref(`rooms/${lobbyRoomCode}/logs`).push(logNode);
+        rtdb.ref(`rooms/${lobbyRoomCode}/logs`).push({
+            timestamp: ts, user: playerUsername || "System Administrator", eventType: type, payload: paramDesc
+        });
     }
 
-    function playTargetSoundEffect() {
+    // 🚀 [YOUTUBE NETWORK SYNC ARCHITECTURE]: Streams exact audio frames natively over any network node layer
+    function broadcastNetworkYouTubeAudio(specificIndex) {
         try {
-            let randIdx = Math.floor(Math.random() * MP3_SOUNDS.length);
-            let audioNode = new Audio(MP3_SOUNDS[randIdx]);
-            audioNode.play().catch(err => console.log("Audio contextual lock applied by web frame configuration rules:", err));
+            let selectedIndex = (specificIndex !== undefined) ? specificIndex : Math.floor(Math.random() * YOUTUBE_VIDEO_IDS.length);
+            let targetVideoId = YOUTUBE_VIDEO_IDS[selectedIndex];
+            
+            // Render a localized audio injection embed container
+            const audioContainer = document.getElementById("mm-network-audio-bridge");
+            if (audioContainer) {
+                audioContainer.innerHTML = `<iframe width="200" height="200" src="https://www.youtube.com/embed/${targetVideoId}?autoplay=1&controls=0" allow="autoplay"></iframe>`;
+            }
+            return selectedIndex;
         } catch(e) {
-            console.error("Audio engine failed to initialize:", e);
+            console.error("Audio core player exception execution dropped:", e);
+            return 0;
         }
     }
 
@@ -647,6 +657,16 @@
             target.style.display = "block";
             target.classList.add('active-view');
         }
+
+        const notepadElement = document.getElementById("admin-floating-notepad-btn");
+        if (notepadElement) {
+            if (screenId === "view-gateway") {
+                notepadElement.style.setProperty("display", "flex", "important");
+            } else {
+                notepadElement.style.setProperty("display", "none", "important");
+            }
+        }
+
         if (screenId === 'view-overview') {
             renderPortfolioTable();
             renderBuyMarketBoard();
@@ -677,7 +697,7 @@
         showScreen("view-setup");
 
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}`).update({
-            activeModifiers: { badAdvice: false, overconfidence: false, greed: false, marketRumourSector: "", textPayload: "", randomNonceTrigger: 0 }
+            activeModifiers: { badAdvice: false, overconfidence: false, greed: false, marketRumourSector: "", textPayload: "", randomNonceTrigger: 0, sharedSoundIndex: -1 }
         });
 
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/portfolio`).once('value', (snapshot) => {
@@ -696,6 +716,7 @@
             }
         });
 
+        // MULTI-NETWORK STREAMING SYNC PIPELINE
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers`).on('value', (snap) => {
             if (snap.exists()) {
                 let remoteMods = snap.val();
@@ -708,10 +729,15 @@
                 if (remoteMods.textPayload) { openCustomModal("Target Alert", `You have been targeted by an opponent card effect:\n\n"${remoteMods.textPayload}"`, false); rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/textPayload`).set(""); triggeredSound = true; }
                 
                 if (triggeredSound || remoteMods.randomNonceTrigger > 0) {
+                    let targetIdx = undefined;
+                    if (remoteMods.sharedSoundIndex !== undefined && remoteMods.sharedSoundIndex >= 0) {
+                        targetIdx = remoteMods.sharedSoundIndex;
+                    }
                     if (remoteMods.randomNonceTrigger > 0) {
                         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/randomNonceTrigger`).set(0);
+                        rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}/activeModifiers/sharedSoundIndex`).set(-1);
                     }
-                    playTargetSoundEffect();
+                    broadcastNetworkYouTubeAudio(targetIdx);
                 }
                 renderPortfolioTable();
             }
@@ -724,24 +750,19 @@
         rtdb.ref(`rooms/${lobbyRoomCode}/marketState`).on('value', (snap) => {
             if (snap.exists()) {
                 globalMarketPrices = snap.val();
-                renderPortfolioTable();
-                renderBuyMarketBoard();
-                checkGoalCompliance();
+                renderPortfolioTable(); renderBuyMarketBoard(); checkGoalCompliance();
             }
         });
 
         rtdb.ref(`rooms/${lobbyRoomCode}/activeScenarioTrigger`).on('value', (snap) => {
-            let val = snap.val();
-            if (val) { executeScenarioLogicLocally(val); }
+            let val = snap.val(); if (val) { executeScenarioLogicLocally(val); }
         });
 
         rtdb.ref(`rooms/${lobbyRoomCode}/logs`).on('value', (snap) => {
-            const tbody = document.getElementById("room-history-table-body");
-            if (!tbody) return;
+            const tbody = document.getElementById("room-history-table-body"); if (!tbody) return;
             if (snap.exists()) {
                 tbody.innerHTML = "";
-                let logsObj = snap.val();
-                let logsArr = Object.values(logsObj).reverse();
+                let logsObj = snap.val(); let logsArr = Object.values(logsObj).reverse();
                 logsArr.slice(0, 15).forEach(l => {
                     tbody.innerHTML += `
                         <tr>
@@ -756,32 +777,6 @@
         });
     }
 
-    function isDontCard(key) {
-        const num = parseInt(key.replace("A", ""));
-        return (num >= 11 && num <= 20);
-    }
-
-    function updateTargetDropdown(playersList) {
-        let select = document.getElementById("target-player-select");
-        if(!select) return;
-        select.innerHTML = "";
-        let count = 0;
-        for (let pName in playersList) {
-            if (pName !== playerUsername) {
-                let opt = document.createElement("option");
-                opt.value = pName; opt.innerText = pName;
-                select.appendChild(opt);
-                count++;
-            }
-        }
-        let actionVal = document.getElementById("action-select").value;
-        if (isDontCard(actionVal) && count > 0) {
-            document.getElementById("target-player-group").style.display = "block";
-        } else {
-            document.getElementById("target-player-group").style.display = "none";
-        }
-    }
-
     function initializeTrackerDashboard() {
         let pId = document.getElementById("player-profile-select").value;
         chosenProfile = PROFILE_DB[pId];
@@ -791,20 +786,15 @@
     }
 
     function backToProfileSelection() { showScreen("view-setup"); }
-    
     function previewScenarioInfo() {
         let key = document.getElementById("scenario-select").value;
         document.getElementById("scenario-preview-text").innerText = (key && SCENARIO_DB[key]) ? SCENARIO_DB[key].desc : "";
     }
-    
     function previewActionInfo() {
         let key = document.getElementById("action-select").value;
         document.getElementById("action-preview-text").innerText = (key && ACTION_DB_INFO[key]) ? ACTION_DB_INFO[key] : "";
-        if (isDontCard(key)) {
-            document.getElementById("target-player-group").style.display = "block";
-        } else {
-            document.getElementById("target-player-group").style.display = "none";
-        }
+        if (isDontCard(key)) { document.getElementById("target-player-group").style.display = "block"; } 
+        else { document.getElementById("target-player-group").style.display = "none"; }
     }
 
     function openCustomModal(title, text, isConfirm, onConfirmCallback) {
@@ -816,10 +806,8 @@
         btnCancel.style.display = isConfirm ? "inline-block" : "none";
         btnConfirm.innerText = isConfirm ? "Confirm" : "OK";
 
-        let newConfirm = btnConfirm.cloneNode(true);
-        let newCancel = btnCancel.cloneNode(true);
-        btnConfirm.parentNode.replaceChild(newConfirm, btnConfirm);
-        btnCancel.parentNode.replaceChild(newCancel, btnCancel);
+        let newConfirm = btnConfirm.cloneNode(true); let newCancel = btnCancel.cloneNode(true);
+        btnConfirm.parentNode.replaceChild(newConfirm, btnConfirm); btnCancel.parentNode.replaceChild(newCancel, btnCancel);
 
         newConfirm.addEventListener("click", () => { overlay.classList.remove("active-modal"); if (onConfirmCallback) onConfirmCallback(); });
         newCancel.addEventListener("click", () => { overlay.classList.remove("active-modal"); });
@@ -827,22 +815,15 @@
     }
 
     function triggerEndGameArchive() {
-        openCustomModal(
-            "Finalize & Lock Session?", 
-            `Confirm finalization of Room ID [${lobbyRoomCode}]?\n\nSession variables will freeze, preserving history database assets inside the master log schema.`, 
-            true, 
-            () => {
-                pushSessionActionLog("SESSION_END", "Game terminated by player deployment.");
-                location.reload();
-            }
-        );
+        openCustomModal("Finalize & Lock Session?", `Confirm finalization of Room ID [${lobbyRoomCode}]?\n\nSession variables freeze and logs are preserved.`, true, () => {
+            pushSessionActionLog("SESSION_END", "Game terminated by player deployment.");
+            location.reload();
+        });
     }
 
     function renderPortfolioTable() {
-        const tbody = document.getElementById("portfolio-table-body"); 
-        if(!tbody) return;
-        tbody.innerHTML = "";
-        let netTotalPortfolioValue = 0;
+        const tbody = document.getElementById("portfolio-table-body"); if(!tbody) return;
+        tbody.innerHTML = ""; let netTotalPortfolioValue = 0;
 
         ownedAssetInstances.forEach(inst => {
             netTotalPortfolioValue += inst.currentValue;
@@ -874,18 +855,16 @@
         });
 
         if (ownedAssetInstances.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #94a3b8; font-style: italic; background-color: #0f172a !important;">No investment assets currently held. Browse the board below to register assets.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #94a3b8; font-style: italic; background-color: #0f172a !important;">No investment assets currently held.</td></tr>`;
         }
         document.getElementById("total-portfolio-display").innerText = `$${netTotalPortfolioValue}`;
     }
 
     function renderBuyMarketBoard() {
-        const tbody = document.getElementById("buy-market-table-body");
-        if(!tbody) return;
+        const tbody = document.getElementById("buy-market-table-body"); if(!tbody) return;
         tbody.innerHTML = "";
         for (let code in ASSET_TEMPLATES) {
-            let template = ASSET_TEMPLATES[code];
-            let currentMarketCostPrice = globalMarketPrices[code] || template.cost; 
+            let template = ASSET_TEMPLATES[code]; let currentMarketCostPrice = globalMarketPrices[code] || template.cost; 
             tbody.innerHTML += `
                 <tr>
                     <td class="sticky-col"><strong>${code}</strong></td>
@@ -903,12 +882,10 @@
         let template = ASSET_TEMPLATES[cardId]; let currentMarketPrice = globalMarketPrices[cardId] || template.cost;
         activeTransactionStaging = { type: "BUY", cardId: cardId, instanceId: null, executionPrice: currentMarketPrice };
         document.getElementById("confirm-action-type").innerText = "CONFIRM PURCHASE REGISTRATION";
-        document.getElementById("confirm-asset-details").innerText = `[${cardId}] ${template.name} (${template.sector} Sector)`;
+        document.getElementById("confirm-asset-details").innerText = `[${cardId}] ${template.name}`;
         document.getElementById("confirm-price-readout").innerText = `$${currentMarketPrice}`;
         document.getElementById("confirm-price-readout").style.color = "var(--warning-color)";
-        
         document.getElementById("confirm-multi-btn").innerText = "Confirm & Repeat Action";
-        document.getElementById("confirm-cancel-btn").setAttribute("onclick", "showScreen('view-overview')");
         showScreen("view-confirm-transaction");
     }
 
@@ -919,44 +896,31 @@
         document.getElementById("confirm-asset-details").innerText = `Instance #${inst.instanceId} - [${inst.cardId}] ${inst.name}`;
         document.getElementById("confirm-price-readout").innerText = `$${inst.currentValue}`;
         document.getElementById("confirm-price-readout").style.color = "var(--success-color)";
-        
-        document.getElementById("confirm-multi-btn").innerText = "Confirm & Repeat Action";
-        document.getElementById("confirm-cancel-btn").setAttribute("onclick", "showScreen('view-overview')");
         showScreen("view-confirm-transaction");
     }
 
     function commitConfirmedTransaction(wantsToRepeat) {
         let cardId = activeTransactionStaging.cardId; let price = activeTransactionStaging.executionPrice;
-        let originalType = activeTransactionStaging.type;
-        let originalInstanceId = activeTransactionStaging.instanceId;
+        let originalType = activeTransactionStaging.type; let originalInstanceId = activeTransactionStaging.instanceId;
 
         if (originalType === "BUY") {
             ownedAssetInstances.push({ instanceId: instanceIdCounter++, cardId: cardId, name: ASSET_TEMPLATES[cardId].name, risk: ASSET_TEMPLATES[cardId].risk, boughtPrice: price, currentValue: price, netChange: 0, sector: ASSET_TEMPLATES[cardId].sector, tags: { immune: false, doubleGrowth: false } });
             document.getElementById("inv-type").innerText = "ASSET PURCHASE SECURED (BUY)";
-            document.getElementById("inv-cash-flow").innerText = `-$${price}`; document.getElementById("inv-cash-flow").style.color = "var(--danger-color)";
-            document.getElementById("inv-instruction").innerText = `BANK NOTIFICATION: Pay $${price} cash to banker. Tokens go UNDER the physical layout card.`;
-            pushSessionActionLog("ASSET_BUY", `Secured registration of asset ${cardId} at transaction cost price $${price}`);
+            document.getElementById("inv-cash-flow").innerText = `-$${price}`;
+            pushSessionActionLog("ASSET_BUY", `Secured registration of asset ${cardId} at $${price}`);
         } else {
             let targetIdx = ownedAssetInstances.findIndex(x => x.instanceId === originalInstanceId); if (targetIdx !== -1) ownedAssetInstances.splice(targetIdx, 1);
             document.getElementById("inv-type").innerText = "ASSET PORTFOLIO LIQUIDATION (SELL)";
-            document.getElementById("inv-cash-flow").innerText = `+$${price}`; document.getElementById("inv-cash-flow").style.color = "var(--success-color)";
-            document.getElementById("inv-instruction").innerText = `BANK NOTIFICATION: Return physical card layout. Banker pays player back $${price} from card cache notes.`;
-            pushSessionActionLog("ASSET_SELL", `Liquidated asset instance #${originalInstanceId} ([${cardId}]) collecting payout value $${price}`);
+            document.getElementById("inv-cash-flow").innerText = `+$${price}`;
+            pushSessionActionLog("ASSET_SELL", `Liquidated asset instance #${originalInstanceId} ([${cardId}]) collecting $${price}`);
         }
         document.getElementById("inv-asset").innerText = cardId;
-        
         savePlayerSession();
-
-        if (wantsToRepeat) {
-            if (originalType === "BUY") {
-                document.getElementById("invoice-return-btn").setAttribute("onclick", `returnToOverviewAfterInvoice(); stageBuyConfirmation('${cardId}');`);
-            } else {
-                document.getElementById("invoice-return-btn").setAttribute("onclick", "returnToOverviewAfterInvoice();");
-            }
+        if (wantsToRepeat && originalType === "BUY") {
+            document.getElementById("invoice-return-btn").setAttribute("onclick", `returnToOverviewAfterInvoice(); stageBuyConfirmation('${cardId}');`);
         } else {
             document.getElementById("invoice-return-btn").setAttribute("onclick", "returnToOverviewAfterInvoice()");
         }
-        
         showScreen("view-invoice");
     }
 
@@ -965,16 +929,11 @@
     function openInputModal(title, body, placeholder, onConfirm) {
         document.getElementById("input-modal-title").innerText = title;
         document.getElementById("input-modal-body").innerText = body;
-        const field = document.getElementById("input-modal-field");
-        field.value = ""; field.placeholder = placeholder || "";
-        field.type = (placeholder && placeholder.toLowerCase().includes("id")) ? "number" : "text";
+        const field = document.getElementById("input-modal-field"); field.value = ""; field.placeholder = placeholder || "";
         const overlay = document.getElementById("input-modal-overlay");
-        const btnConfirm = document.getElementById("input-modal-confirm");
-        const btnCancel = document.getElementById("input-modal-cancel");
-        const newConfirm = btnConfirm.cloneNode(true);
-        const newCancel = btnCancel.cloneNode(true);
-        btnConfirm.parentNode.replaceChild(newConfirm, btnConfirm);
-        btnCancel.parentNode.replaceChild(newCancel, btnCancel);
+        const btnConfirm = document.getElementById("input-modal-confirm"); const btnCancel = document.getElementById("input-modal-cancel");
+        const newConfirm = btnConfirm.cloneNode(true); const newCancel = btnCancel.cloneNode(true);
+        btnConfirm.parentNode.replaceChild(newConfirm, btnConfirm); btnCancel.parentNode.replaceChild(newCancel, btnCancel);
         newConfirm.addEventListener("click", () => { overlay.classList.remove("active-modal"); onConfirm(field.value.trim()); });
         newCancel.addEventListener("click", () => { overlay.classList.remove("active-modal"); resetActionSelectionFields(); });
         overlay.classList.add("active-modal");
@@ -992,16 +951,18 @@
         
         if (isDontCard(cardKey)) {
             let targetedPlayer = document.getElementById("target-player-select").value;
-            if (!targetedPlayer) { openCustomModal("Selection Error", "No other opponent player registered to target inside this room space.", false); return; }
+            if (!targetedPlayer) { openCustomModal("Selection Error", "No other opponent player registered.", false); return; }
             
-            playTargetSoundEffect();
+            // Broadcast matching sound block dynamically over network
+            let sharedIdx = broadcastNetworkYouTubeAudio();
 
             if (cardKey === "A16") {
-                openInputModal("A16: Target Sector Attack", "Type the target sector for your opponent's holdings:", "Tech / Consumer / Healthcare / Financial / Energy", (val) => {
+                openInputModal("A16: Target Sector Attack", "Type the target sector:", "Tech / Consumer / Healthcare / Financial / Energy", (val) => {
                     let sect = val.trim(); if (!sect) return;
-                    rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update({ marketRumourSector: sect, randomNonceTrigger: Date.now() });
-                    pushSessionActionLog("ACTION_PLAY_ATTACK", `Played ${cardKey} targeting ${targetedPlayer} focusing on sector variance [${sect}]`);
-                    openCustomModal("Attack Deployed", `Sent Market Rumour (${sect}) directly to player ${targetedPlayer}!`, false);
+                    rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update({ 
+                        marketRumourSector: sect, randomNonceTrigger: Date.now(), sharedSoundIndex: sharedIdx
+                    });
+                    pushSessionActionLog("ACTION_PLAY_ATTACK", `Played ${cardKey} targeting ${targetedPlayer} on [${sect}]`);
                     resetActionSelectionFields();
                 });
             } else {
@@ -1009,179 +970,125 @@
                 if (cardKey === "A11") nodeUpdate = { badAdvice: true };
                 else if (cardKey === "A12") nodeUpdate = { overconfidence: true };
                 else if (cardKey === "A15") nodeUpdate = { greed: true };
-                else {
-                    nodeUpdate = { textPayload: `Card ${cardKey} has been activated directly against your portfolio rules by an opponent!` };
-                }
+                else { nodeUpdate = { textPayload: `Card ${cardKey} has been activated against you!` }; }
                 nodeUpdate.randomNonceTrigger = Date.now();
+                nodeUpdate.sharedSoundIndex = sharedIdx;
                 
                 rtdb.ref(`rooms/${lobbyRoomCode}/players/${targetedPlayer}/activeModifiers`).update(nodeUpdate);
-                pushSessionActionLog("ACTION_PLAY_ATTACK", `Played offensive card ${cardKey} targeting player node: ${targetedPlayer}`);
-                openCustomModal("Attack Deployed", `Successfully casted Action ${cardKey} targeting player ${targetedPlayer}!`, false);
+                pushSessionActionLog("ACTION_PLAY_ATTACK", `Played offensive card ${cardKey} targeting ${targetedPlayer}`);
                 resetActionSelectionFields();
             }
             return;
         }
 
         if (cardKey === "A3") { 
-            activePlayerModifiers.diversification = true; 
-            pushSessionActionLog("ACTION_PLAY_DEFENSE", "Played A3 Diversification framework protection.");
-            if (lastExecutedScenarioKey) {
-                openCustomModal("A3 Activated Retroactively", "A3 Diversification logged! Modifying value points on current scenario retroactively.", false);
-                recomputeScenarioWithA3(lastExecutedScenarioKey);
-            } else {
-                openCustomModal("Action Card Logged", "A3 Diversification active. Next round scenario loss structures halved.", false); 
-            }
+            activePlayerModifiers.diversification = true; pushSessionActionLog("ACTION_PLAY_DEFENSE", "Played A3.");
+            if (lastExecutedScenarioKey) { recomputeScenarioWithA3(lastExecutedScenarioKey); }
         }
         else if (cardKey === "A1" || cardKey === "A2" || cardKey === "A4" || cardKey === "A5" || cardKey === "A7") {
             pushSessionActionLog("ACTION_PLAY_UTILITY", `Played utility modifier card sequence: ${cardKey}`);
-            openCustomModal("Action Logged Successfully", `${cardKey} parameters activated. Log transaction with physical dealer boards if required.`, false);
         }
         else if (cardKey === "A6") {
-            if (ownedAssetInstances.length === 0) { openCustomModal("Action Refused", "No active holding instances present to protect.", false); return; }
             let t = "Type the Instance ID to protect:\n\n"; ownedAssetInstances.forEach(i => { t += `#${i.instanceId}: [${i.cardId}] ${i.name}\n`; });
             openInputModal("A6: Safe Haven", t, "e.g. 1001", (val) => {
                 let tid = parseInt(val); let m = ownedAssetInstances.find(x => x.instanceId === tid);
-                if (m) {
-                    m.tags.immune = true; 
-                    pushSessionActionLog("ACTION_PLAY_DEFENSE", `Applied A6 Safe Haven immunization protection to Instance #${tid}`);
-                    openCustomModal("Action Card Logged", `Instance #${tid} is now immune from the next value shock drop.`, false);
-                } else { openCustomModal("Invalid ID", "No matching instance found. Action cancelled.", false); }
+                if (m) { m.tags.immune = true; pushSessionActionLog("ACTION_PLAY_DEFENSE", `Applied A6 to Instance #${tid}`); }
                 resetActionSelectionFields(); savePlayerSession(); renderPortfolioTable();
             }); return;
         }
         else if (cardKey === "A8") {
-            if (ownedAssetInstances.length === 0) return;
-            let t = "Type the Instance ID to swap out:\n\n"; ownedAssetInstances.forEach(i => { t += `ID #${i.instanceId} : [${i.cardId}] ($${i.currentValue})\n`; });
-            openInputModal("A8: Rebalance — Step 1", t, "e.g. 1001", (idVal) => {
-                let oldId = parseInt(idVal); let oldInst = ownedAssetInstances.find(x => x.instanceId === oldId); if (!oldInst) { openCustomModal("Invalid ID", "No matching instance found.", false); return; }
-                openInputModal("A8: Rebalance — Step 2", `Swapping out #${oldId} [${oldInst.cardId}]\n\nEnter replacement Market Card Code:`, "e.g. E9", (codeVal) => {
-                    let newCode = codeVal.toUpperCase(); if (!ASSET_TEMPLATES.hasOwnProperty(newCode)) { openCustomModal("Invalid Code", `'${newCode}' is not a valid asset code.`, false); return; }
+            let t = "Type the Instance ID to swap out:\n\n"; ownedAssetInstances.forEach(i => { t += `ID #${i.instanceId} : [${i.cardId}]\n`; });
+            openInputModal("A8: Rebalance", t, "e.g. 1001", (idVal) => {
+                let oldId = parseInt(idVal); let oldInst = ownedAssetInstances.find(x => x.instanceId === oldId); if (!oldInst) return;
+                openInputModal("A8: Rebalance — Step 2", `Enter replacement Market Card Code:`, "e.g. E9", (codeVal) => {
+                    let newCode = codeVal.toUpperCase(); if (!ASSET_TEMPLATES.hasOwnProperty(newCode)) return;
                     let diff = oldInst.currentValue - (globalMarketPrices[newCode] || ASSET_TEMPLATES[newCode].cost);
                     ownedAssetInstances.splice(ownedAssetInstances.findIndex(x => x.instanceId === oldId), 1);
                     ownedAssetInstances.push({ instanceId: instanceIdCounter++, cardId: newCode, name: ASSET_TEMPLATES[newCode].name, risk: ASSET_TEMPLATES[newCode].risk, boughtPrice: (globalMarketPrices[newCode] || ASSET_TEMPLATES[newCode].cost), currentValue: (globalMarketPrices[newCode] || ASSET_TEMPLATES[newCode].cost), netChange: 0, sector: ASSET_TEMPLATES[newCode].sector, tags: { immune: false, doubleGrowth: false } });
-                    
-                    pushSessionActionLog("ACTION_REBALANCE", `Executed A8 portfolio swap rebalance discarding #${oldId} for new asset copy ${newCode}`);
-                    document.getElementById("inv-type").innerText = "PORTFOLIO REBALANCE SWAP (A8)";
-                    document.getElementById("inv-asset").innerText = `Traded #${oldId} away for a new copy of [${newCode}]`;
-                    document.getElementById("inv-cash-flow").innerText = (diff >= 0 ? "+" : "-") + `$${Math.abs(diff)}`;
-                    document.getElementById("inv-cash-flow").style.color = diff >= 0 ? "var(--success-color)" : "var(--danger-color)";
-                    document.getElementById("inv-instruction").innerText = diff >= 0 ? `Collect exactly +$${diff} from banker.` : `Hand exactly $${Math.abs(diff)} to banker.`;
-                    resetActionSelectionFields(); savePlayerSession(); showScreen("view-invoice");
+                    pushSessionActionLog("ACTION_REBALANCE", `Executed A8 swapping #${oldId} for ${newCode}`);
+                    resetActionSelectionFields(); savePlayerSession(); showScreen("view-overview");
                 });
             }); return;
         }
-        else if (cardKey === "A9") { activePlayerModifiers.hedgeFunds = true; pushSessionActionLog("ACTION_PLAY_DEFENSE", "Logged A9 Hedge Funds downside insulation mitigation."); openCustomModal("Action Card Logged", "Hedge funds active.", false); }
+        else if (cardKey === "A9") { activePlayerModifiers.hedgeFunds = true; pushSessionActionLog("ACTION_PLAY_DEFENSE", "Logged A9."); }
         else if (cardKey === "A10") {
-            if (ownedAssetInstances.length === 0) return;
-            let t = "Type the Instance ID to apply double growth:\n\n"; ownedAssetInstances.forEach(i => { t += `ID #${i.instanceId} : [${i.cardId}]\n`; });
+            let t = "Type the Instance ID:\n\n"; ownedAssetInstances.forEach(i => { t += `ID #${i.instanceId} : [${i.cardId}]\n`; });
             openInputModal("A10: Investment Strategy", t, "e.g. 1001", (val) => {
                 let tid = parseInt(val); let m = ownedAssetInstances.find(x => x.instanceId === tid);
-                if (m) {
-                    m.tags.doubleGrowth = true; 
-                    pushSessionActionLog("ACTION_PLAY_UTILITY", `Applied A10 Strategy compounding acceleration boost onto target instance #${tid}`);
-                    openCustomModal("Action Card Logged", "Instance set to generate double growth round speeds.", false);
-                } else { openCustomModal("Invalid ID", "No matching instance found. Action cancelled.", false); }
+                if (m) { m.tags.doubleGrowth = true; pushSessionActionLog("ACTION_PLAY_UTILITY", `Applied A10 onto instance #${tid}`); }
                 resetActionSelectionFields(); savePlayerSession(); renderPortfolioTable();
             }); return;
         }
-
         resetActionSelectionFields(); savePlayerSession(); renderPortfolioTable();
     }
 
     function triggerScenarioConfirmation() {
-        let key = document.getElementById("scenario-select").value;
-        if (!key) { openCustomModal("Missing Selection", "Please select an active scenario card first.", false); return; }
-        
-        openCustomModal(`Confirm Broadcast: ${key}`, `Confirm execution for ${key}? This updates the database and triggers updates across ALL connected devices simultaneously.`, true, () => {
-            let scenario = SCENARIO_DB[key];
-            let nextMarketPriceState = { ...globalMarketPrices };
+        let key = document.getElementById("scenario-select").value; if (!key) return;
+        openCustomModal(`Confirm Broadcast: ${key}`, `Confirm execution for ${key}?`, true, () => {
+            let scenario = SCENARIO_DB[key]; let nextMarketPriceState = { ...globalMarketPrices };
             for (let code in ASSET_TEMPLATES) {
-                if (scenario.rules.hasOwnProperty(code)) {
-                    nextMarketPriceState[code] += scenario.rules[code];
-                } else {
-                    nextMarketPriceState[code] += ASSET_TEMPLATES[code].growth;
-                }
+                if (scenario.rules.hasOwnProperty(code)) { nextMarketPriceState[code] += scenario.rules[code]; } 
+                else { nextMarketPriceState[code] += ASSET_TEMPLATES[code].growth; }
                 if (nextMarketPriceState[code] < 0) nextMarketPriceState[code] = 0;
             }
-
-            pushSessionActionLog("SCENARIO_BROADCAST", `Executed macro market scenario card callout: [${key}] ${scenario.title}`);
-            rtdb.ref(`rooms/${lobbyRoomCode}`).update({
-                marketState: nextMarketPriceState,
-                activeScenarioTrigger: key + "_" + Date.now()
-            });
+            pushSessionActionLog("SCENARIO_BROADCAST", `Executed scenario card: [${key}] ${scenario.title}`);
+            rtdb.ref(`rooms/${lobbyRoomCode}`).update({ marketState: nextMarketPriceState, activeScenarioTrigger: key + "_" + Date.now() });
         });
     }
 
     function showJustificationPopup(scenarioKey) {
         let scenario = SCENARIO_DB[scenarioKey];
-        let modalBody = document.getElementById("justification-modal-body");
-        let closeBtn = document.getElementById("justification-modal-close-btn");
-        
+        let modalBody = document.getElementById("justification-modal-body"); let closeBtn = document.getElementById("justification-modal-close-btn");
         let htmlContent = `<div style="margin-bottom:12px;"><strong>Global Economic Shifter:</strong> ${scenario.title}</div>`;
-        let standardOrganicGrowthOccurred = true;
-        let internalExplanationLogs = [];
+        let standardOrganicGrowthOccurred = true; let internalExplanationLogs = [];
         
         ownedAssetInstances.forEach(inst => {
             if (scenario.rules.hasOwnProperty(inst.cardId)) {
-                standardOrganicGrowthOccurred = false;
-                let delta = scenario.rules[inst.cardId];
-                let directionText = delta >= 0 ? "boosted" : "impacted";
-                internalExplanationLogs.push(`<li><strong>[${inst.cardId}] ${inst.name}:</strong> Explicitly ${directionText} ($${delta >= 0 ? '+' : ''}${delta}) due to the market conditions described in the scenario text: <em>"${scenario.desc}"</em>.</li>`);
+                standardOrganicGrowthOccurred = false; let delta = scenario.rules[inst.cardId];
+                internalExplanationLogs.push(`<li><strong>[${inst.cardId}] ${inst.name}:</strong> Explicitly altered ($${delta >= 0 ? '+' : ''}${delta}) due to: <em>"${scenario.desc}"</em>.</li>`);
             }
         });
 
         if (standardOrganicGrowthOccurred || internalExplanationLogs.length === 0) {
-            htmlContent += `<p style="color:var(--success-color); font-weight:600;">All owned positions incremented cleanly from organic business expansion forces this cycle.</p>`;
+            htmlContent += `<p style="color:var(--success-color); font-weight:600;">All owned positions incremented cleanly from organic growth factors.</p>`;
         } else {
-            htmlContent += `<p style="margin-bottom:8px; color:var(--warning-color); font-weight:600;">The structural event shifts below impacted your asset classes directly:</p>`;
-            htmlContent += `<ul style="padding-left:18px; line-height:1.5;">${internalExplanationLogs.join("")}</ul>`;
+            htmlContent += `<p style="margin-bottom:8px; color:var(--warning-color); font-weight:600;">Event shifts directly impacting your holdings:</p><ul style="padding-left:18px; line-height:1.5;">${internalExplanationLogs.join("")}</ul>`;
         }
 
-        modalBody.innerHTML = htmlContent;
-        closeBtn.disabled = true;
-        let count = 10;
-        closeBtn.innerText = `Understand (${count}s)`;
-        
-        const overlay = document.getElementById("justification-modal-overlay");
-        overlay.classList.add("active-modal");
+        modalBody.innerHTML = htmlContent; closeBtn.disabled = true;
+        let count = 10; closeBtn.innerText = `Understand (${count}s)`;
+        const overlay = document.getElementById("justification-modal-overlay"); overlay.classList.add("active-modal");
         
         let timer = setInterval(() => {
             count--;
             if (count <= 0) {
-                clearInterval(timer);
-                closeBtn.disabled = false;
-                closeBtn.innerText = "Close Breakdown";
-            } else {
-                closeBtn.innerText = `Understand (${count}s)`;
-            }
+                clearInterval(timer); closeBtn.disabled = false; closeBtn.innerText = "Close Breakdown";
+            } else { closeBtn.innerText = `Understand (${count}s)`; }
         }, 1000);
-        
         closeBtn.onclick = function() { overlay.classList.remove("active-modal"); };
     }
 
     function executeScenarioLogicLocally(triggerString) {
         let scenarioKey = triggerString.split("_")[0]; let scenario = SCENARIO_DB[scenarioKey];
-        lastExecutedScenarioKey = scenarioKey; 
-        let instanceDeltaRegistry = {};
+        lastExecutedScenarioKey = scenarioKey; let instanceDeltaRegistry = {};
 
         ownedAssetInstances.forEach(inst => {
             let code = inst.cardId; let hasScenarioRule = scenario.rules.hasOwnProperty(code); let change = 0;
             if (hasScenarioRule) {
                 change = scenario.rules[code];
                 if (change < 0) {
-                    if (inst.tags.immune) { change = 0; } else {
+                    if (!inst.tags.immune) {
                         if (activePlayerModifiers.overconfidence) change *= 2; if (activePlayerModifiers.greed) change *= 2;
                         if (activePlayerModifiers.diversification) change = Math.floor(change * 0.5);
                         if (activePlayerModifiers.marketRumourSector === inst.sector) change *= 2;
-                    }
+                    } else { change = 0; }
                 } else {
                     if (activePlayerModifiers.overconfidence) change *= 2;
                     if (activePlayerModifiers.badAdvice) change = Math.floor(change * 0.5);
                 }
             } else {
                 change = ASSET_TEMPLATES[code].growth;
-                if (inst.tags.doubleGrowth) change *= 2;
-                if (activePlayerModifiers.badAdvice) change = Math.floor(change * 0.5);
+                if (inst.tags.doubleGrowth) change *= 2; if (activePlayerModifiers.badAdvice) change = Math.floor(change * 0.5);
             }
             instanceDeltaRegistry[inst.instanceId] = change;
         });
@@ -1189,15 +1096,13 @@
         if (activePlayerModifiers.hedgeFunds) {
             let worstId = null; let worstAmt = 0;
             ownedAssetInstances.forEach(inst => {
-                let d = instanceDeltaRegistry[inst.instanceId];
-                if (d < worstAmt) { worstAmt = d; worstId = inst.instanceId; }
+                let d = instanceDeltaRegistry[inst.instanceId]; if (d < worstAmt) { worstAmt = d; worstId = inst.instanceId; }
             });
             if (worstId) instanceDeltaRegistry[worstId] = 0;
         }
 
         ownedAssetInstances.forEach(inst => {
-            let d = instanceDeltaRegistry[inst.instanceId];
-            inst.netChange = d; inst.currentValue += d;
+            let d = instanceDeltaRegistry[inst.instanceId]; inst.netChange = d; inst.currentValue += d;
             if (inst.currentValue < 0) inst.currentValue = 0;
             inst.tags.immune = false; 
         });
@@ -1206,32 +1111,39 @@
         activePlayerModifiers.badAdvice = false; activePlayerModifiers.overconfidence = false;
         activePlayerModifiers.greed = false; activePlayerModifiers.marketRumourSector = null;
 
-        document.getElementById("scenario-select").value = "";
-        document.getElementById("scenario-preview-text").innerText = "";
+        document.getElementById("scenario-select").value = ""; document.getElementById("scenario-preview-text").innerText = "";
+        savePlayerSession(); renderPortfolioTable(); renderBuyMarketBoard(); checkGoalCompliance();
 
-        savePlayerSession();
-        renderPortfolioTable();
-        renderBuyMarketBoard();
-        checkGoalCompliance();
-
-        openCustomModal("Scenario Notification", `Scenario executed inside room:\n[${scenarioKey}] ${scenario.title}\n\nYour numbers have updated automatically. Check Net Change flags.`, false, () => {
+        openCustomModal("Scenario Notification", `Scenario executed inside room:\n[${scenarioKey}] ${scenario.title}`, false, () => {
             showJustificationPopup(scenarioKey);
         });
+    }
+
+    function updateTargetDropdown(playersList) {
+        let select = document.getElementById("target-player-select"); if(!select) return;
+        select.innerHTML = ""; let count = 0;
+        for (let pName in playersList) {
+            if (pName !== playerUsername) {
+                let opt = document.createElement("option"); opt.value = pName; opt.innerText = pName;
+                select.appendChild(opt); count++;
+            }
+        }
+        let actionVal = document.getElementById("action-select").value;
+        if (isDontCard(actionVal) && count > 0) { document.getElementById("target-player-group").style.display = "block"; } 
+        else { document.getElementById("target-player-group").style.display = "none"; }
     }
 
     function recomputeScenarioWithA3(scenarioKey) {
         let scenario = SCENARIO_DB[scenarioKey];
         ownedAssetInstances.forEach(inst => {
             if (scenario.rules.hasOwnProperty(inst.cardId) && scenario.rules[inst.cardId] < 0) {
-                let originalLoss = inst.netChange;
-                let mitigatedLoss = Math.floor(originalLoss * 0.5);
+                let originalLoss = inst.netChange; let mitigatedLoss = Math.floor(originalLoss * 0.5);
                 let recoveryAdjustment = mitigatedLoss - originalLoss; 
                 inst.currentValue += recoveryAdjustment; inst.netChange = mitigatedLoss;
                 if (inst.currentValue < 0) inst.currentValue = 0;
             }
         });
-        activePlayerModifiers.diversification = false;
-        savePlayerSession(); renderPortfolioTable(); renderBuyMarketBoard(); checkGoalCompliance();
+        activePlayerModifiers.diversification = false; savePlayerSession(); renderPortfolioTable(); renderBuyMarketBoard(); checkGoalCompliance();
     }
 
     function checkGoalCompliance() {
@@ -1261,15 +1173,9 @@
         }
     }
 
-    let cachedGlobalRoomsDataset = {};
-
     function triggerAdminPasswordGate() {
-        openInputModal("Administrator Authentication Required", "Enter security credential sequence key to unlock the data engine framework:", "🔒 Enter Password", (passwordInput) => {
-            if (passwordInput === "9999") {
-                launchAdminDataCenterWorkspace();
-            } else {
-                openCustomModal("Authentication Denied", "Invalid administrative credentials.", false);
-            }
+        openInputModal("Administrator Authentication Required", "Enter security key sequence:", "🔒 Password", (passwordInput) => {
+            if (passwordInput === "9999") { launchAdminDataCenterWorkspace(); }
         });
     }
 
@@ -1280,47 +1186,31 @@
                 populateAdminRoomFilterControls(cachedGlobalRoomsDataset);
                 computeAdminHighValueMetrics(cachedGlobalRoomsDataset);
                 showScreen("view-admin-datacenter");
-            } else {
-                openCustomModal("No Data Found", "No active or recorded server room instances found.", false);
             }
         });
     }
 
-    function exitAdminDataCenterView() {
-        showScreen("view-overview");
-    }
+    function exitAdminDataCenterView() { showScreen("view-gateway"); }
 
     function populateAdminRoomFilterControls(dataset) {
-        let select = document.getElementById("admin-room-filter-select");
-        select.innerHTML = "";
-        let roomsKeys = Object.keys(dataset);
-        roomsKeys.forEach(rk => {
-            let opt = document.createElement("option");
-            opt.value = rk; opt.innerText = `Room Asset Block Reference ID: ${rk}`;
-            select.appendChild(opt);
+        let select = document.getElementById("admin-room-filter-select"); select.innerHTML = "";
+        Object.keys(dataset).forEach(rk => {
+            let opt = document.createElement("option"); opt.value = rk; opt.innerText = `Room ID: ${rk}`; select.appendChild(opt);
         });
-        if (roomsKeys.length > 0) {
-            select.value = lobbyRoomCode || roomsKeys[0];
-            renderAdminSelectedRoomLogsTable();
+        if (Object.keys(dataset).length > 0) {
+            select.value = lobbyRoomCode || Object.keys(dataset)[0]; renderAdminSelectedRoomLogsTable();
         }
     }
 
     function computeAdminHighValueMetrics(dataset) {
-        let keys = Object.keys(dataset);
-        document.getElementById("stat-total-rooms").innerText = keys.length;
-        
-        let grandLogCount = 0;
-        let mostAggressiveRoomKey = "None";
-        let maxRoomAttackCount = -1;
-
+        let keys = Object.keys(dataset); document.getElementById("stat-total-rooms").innerText = keys.length;
+        let grandLogCount = 0; let mostAggressiveRoomKey = "None"; let maxRoomAttackCount = -1;
         keys.forEach(k => {
             if (dataset[k].logs) {
-                let currentLogs = Object.values(dataset[k].logs);
-                grandLogCount += currentLogs.length;
+                let currentLogs = Object.values(dataset[k].logs); grandLogCount += currentLogs.length;
                 let attackOpsCount = currentLogs.filter(l => l.eventType === "ACTION_PLAY_ATTACK").length;
                 if (attackOpsCount > maxRoomAttackCount && attackOpsCount > 0) {
-                    maxRoomAttackCount = attackOpsCount;
-                    mostAggressiveRoomKey = `${k} (${attackOpsCount} attacks)`;
+                    maxRoomAttackCount = attackOpsCount; mostAggressiveRoomKey = `${k} (${attackOpsCount} attacks)`;
                 }
             }
         });
@@ -1332,75 +1222,42 @@
         let selectedRoomKey = document.getElementById("admin-room-filter-select").value;
         const tbody = document.getElementById("admin-audit-table-body");
         if (!tbody || !selectedRoomKey || !cachedGlobalRoomsDataset[selectedRoomKey]) return;
-
         tbody.innerHTML = "";
         if (cachedGlobalRoomsDataset[selectedRoomKey].logs) {
-            let logsObj = cachedGlobalRoomsDataset[selectedRoomKey].logs;
-            Object.values(logsObj).forEach(l => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${selectedRoomKey}</strong></td>
-                        <td>${l.timestamp}</td>
-                        <td><span style="color:var(--warning-color);">${l.user}</span></td>
-                        <td><span class="risk-badge" style="background:var(--accent-color);">${l.eventType}</span></td>
-                        <td>${l.payload}</td>
-                    </tr>
-                `;
+            Object.values(cachedGlobalRoomsDataset[selectedRoomKey].logs).forEach(l => {
+                tbody.innerHTML += `<tr><td><strong>${selectedRoomKey}</strong></td><td>${l.timestamp}</td><td>${l.user}</td><td><span class="risk-badge" style="background:var(--accent-color);">${l.eventType}</span></td><td>${l.payload}</td></tr>`;
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8; font-style: italic;">No specific structural ledger activity logged inside this room ID code block.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8; font-style: italic;">No logs found.</td></tr>`;
         }
     }
 
     function exportIndividualActiveGameCSV() {
         let targetRoomKey = document.getElementById("admin-room-filter-select").value;
-        if (!targetRoomKey || !cachedGlobalRoomsDataset[targetRoomKey] || !cachedGlobalRoomsDataset[targetRoomKey].logs) {
-            openCustomModal("Export Aborted", "No structural ledger activity logs recorded inside this room block.", false);
-            return;
-        }
-
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Game ID (Room Code),Timestamp,User Identity,Operation Action Type,Logged Metric Parameter Payload\n";
-
-        let logsObj = cachedGlobalRoomsDataset[targetRoomKey].logs;
-        Object.values(logsObj).forEach(l => {
-            let cleanPayload = l.payload.replace(/"/g, '""');
-            csvContent += `"${targetRoomKey}","${l.timestamp}","${l.user}","${l.eventType}","${cleanPayload}"\n`;
+        if (!targetRoomKey || !cachedGlobalRoomsDataset[targetRoomKey] || !cachedGlobalRoomsDataset[targetRoomKey].logs) return;
+        let csvContent = "data:text/csv;charset=utf-8,Game ID (Room Code),Timestamp,User Identity,Operation Action Type,Logged Metric Parameter Payload\n";
+        Object.values(cachedGlobalRoomsDataset[targetRoomKey].logs).forEach(l => {
+            csvContent += `"${targetRoomKey}","${l.timestamp}","${l.user}","${l.eventType}","${l.payload.replace(/"/g, '""')}"\n`;
         });
-
         triggerCSVBlobDownload(`Room_${targetRoomKey}_Activity_Dataset.csv`, csvContent);
     }
 
     function exportMasterConsolidatedGamesCSV() {
-        if (Object.keys(cachedGlobalRoomsDataset).length === 0) {
-            openCustomModal("Export Aborted", "Master dictionary registry dataset empty.", false);
-            return;
-        }
-
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Game ID (Room Code),Timestamp,User Identity,Operation Action Type,Logged Metric Parameter Payload\n";
-
+        let csvContent = "data:text/csv;charset=utf-8,Game ID (Room Code),Timestamp,User Identity,Operation Action Type,Logged Metric Parameter Payload\n";
         Object.keys(cachedGlobalRoomsDataset).forEach(roomKey => {
             if (cachedGlobalRoomsDataset[roomKey].logs) {
-                let logsObj = cachedGlobalRoomsDataset[roomKey].logs;
-                Object.values(logsObj).forEach(l => {
-                    let cleanPayload = l.payload.replace(/"/g, '""');
-                    csvContent += `"${roomKey}","${l.timestamp}","${l.user}","${l.eventType}","${cleanPayload}"\n`;
+                Object.values(cachedGlobalRoomsDataset[roomKey].logs).forEach(l => {
+                    csvContent += `"${roomKey}","${l.timestamp}","${l.user}","${l.eventType}","${l.payload.replace(/"/g, '""')}"\n`;
                 });
             }
         });
-
         triggerCSVBlobDownload("Market_Mayhem_Master_Consolidated_Ledger.csv", csvContent);
     }
 
     function triggerCSVBlobDownload(filename, encodedContent) {
-        let targetUri = encodeURI(encodedContent);
-        let anchorDownloadElement = document.createElement("a");
-        anchorDownloadElement.setAttribute("href", targetUri);
-        anchorDownloadElement.setAttribute("download", filename);
-        document.body.appendChild(anchorDownloadElement);
-        anchorDownloadElement.click();
-        document.body.removeChild(anchorDownloadElement);
+        let targetUri = encodeURI(encodedContent); let anchor = document.createElement("a");
+        anchor.setAttribute("href", targetUri); anchor.setAttribute("download", filename);
+        document.body.appendChild(anchor); anchor.click(); document.body.removeChild(anchor);
     }
 </script>
 </body>

@@ -272,7 +272,7 @@
                     </table>
                 </div>
 
-                <div style="display: none;">
+                <div style="display: none !important;">
                     <h2 style="margin-top: 30px;">Active Room Transaction History Log</h2>
                     <div class="table-responsive-wrapper">
                         <table class="overview-table" style="font-size: 0.85rem;">
@@ -550,13 +550,78 @@
         "B4": { name: "iShares Asia High Yield Bond", risk: 3, cost: 100, growth: 8, sector: "Financial" }
     };
 
-    // Restored Core Global Scenario Registry
+    // Full Updated 14 Scenarios Matching Specified Multipliers/Rules
     const SCENARIO_DB = {
-        "S1": { title: "Tech Sector Hypergrowth", desc: "A breakthrough in artificial intelligence triggers a massive rally across all tech assets.", rules: { "E1": 20, "E8": 50, "E9": 70, "E12": 80, "E13": 50, "E14": 15, "E16": 60 } },
-        "S2": { title: "Global Supply Chain Crisis", desc: "Energy prices surge, impacting production costs heavily across hardware and manufacturing fields.", rules: { "E15": 75, "F3": 40, "E1": -20, "E6": -15, "E10": -10 } },
-        "S3": { title: "Federal Rate Hike", desc: "Central banks increase interest rates sharply to curb high inflation levels.", rules: { "E4": 25, "E7": 30, "B1": -10, "B2": -5, "E15": -40, "E12": -35 } },
-        "S4": { title: "Healthcare Security Act", desc: "New federal subsidies push massive institutional capital shifts into medical portfolios.", rules: { "E3": 45 } },
-        "S5": { title: "Black Swan Liquidity Crunch", desc: "A unexpected economic slowdown impacts high-yielding equity lines uniformly.", rules: { "E12": -60, "E13": -50, "E15": -80, "E16": -45, "B4": -20 } }
+        "S1": { 
+            title: "US Fed Reserve Rate Hikes (2022 QT)", 
+            desc: "To fight rising inflation, the US Central Bank aggressively raised interest rates by 4.25% alongside Quantitative Tightening constraints.", 
+            rules: { "B1": -10, "P1": 10, "P2": 10, "P5": 10, "E7": -30, "E8": -30, "E9": -30, "E10": -30, "E11": -30, "B2": -10, "B3": -10, "F2": -25, "P3": -20, "P6": -20, "P7": -20, "E12": -65, "E13": -65, "E15": -65, "E16": -65, "E14": -15, "P4": -25, "P8": -25, "F3": -45 } 
+        },
+        "S2": { 
+            title: "China Economic Stimulus (2008 Stimulus)", 
+            desc: "Beijing injects 4 trillion yuan into the domestic economy to preserve industrial scale and prevent job layout contractions.", 
+            rules: { "E1": 10, "E4": 10, "F2": 30, "P6": 35, "B2": 15, "B3": 15, "E15": 50, "E16": 50, "B4": 25, "F3": 45 } 
+        },
+        "S3": { 
+            title: "Global Recession Fear (2022 Bear Market)", 
+            desc: "Consumer indices contract for consecutive periods while everyday prices surge, triggering baseline panic across capital desks.", 
+            rules: { "P1": 15, "P5": 15, "E3": 15, "E5": 15, "E6": 15, "F2": -40, "E8": -30, "E9": -30, "E10": -30, "E11": -30, "E12": -70, "E13": -70, "E15": -70, "E16": -70, "E14": -20, "F1": 60 } 
+        },
+        "S4": { 
+            title: "Global Interest Rate Cuts (2020 COVID)", 
+            desc: "Lockdown freezes business vectors. Fearing a depression footprint, central banks lower policy interest rates directly toward 0%.", 
+            rules: { "B1": 15, "P1": -10, "P5": -10, "E8": 45, "E9": 45, "E10": 45, "F2": 40, "E12": 75, "E13": 75, "E16": 75, "E14": 20, "E15": 20, "P4": 30, "P8": 30 } 
+        },
+        "S5": { 
+            title: "Supply Chain Chaos (Post-COVID Reopening)", 
+            desc: "Demand scales faster than log-lines. Chip blockages and congestion directly restrict companies linked to high hardware footprints.", 
+            rules: { "E1": -10, "E8": -35, "E10": -35, "E11": -20, "E15": -85, "E16": -40 } 
+        },
+        "S6": { 
+            title: "Inflation Shock (Skyrocketing Prices)", 
+            desc: "Surges across fuel and production streams compress margin ratios, forcing broad tightening shifts into focus.", 
+            rules: { "E3": 10, "E5": 10, "E6": 10, "B1": -5, "E10": -30, "E11": -30, "F2": -40, "E13": -50, "E16": -45, "F1": 50 } 
+        },
+        "S7": { 
+            title: "AI Technology Boom (2023 Generative Rally)", 
+            desc: "Generative infrastructure shifts unleash strong thematic capital allocations toward cloud systems and datacenter chip streams.", 
+            rules: { "E1": 10, "E9": 65, "E8": 40, "F2": 35, "E16": 95, "E12": 75, "E13": 50, "E14": 15 } 
+        },
+        "S8": { 
+            title: "Oil Price Spike (Geopolitical Crisis)", 
+            desc: "Regional conflict paths disrupt energy pipelines, forcing sharp cost expansion overheads into importing markets.", 
+            rules: { "E1": -15, "E5": -10, "E6": -10, "E11": -25, "P7": -15, "P8": -15, "F1": 40, "F3": 35, "E15": 45 } 
+        },
+        "S9": { 
+            title: "Post-Pandemic Property Boom (Liquidity Influx)", 
+            desc: "Lower systemic borrowing hurdles and structural asset re-allocations support commercial and capital floor improvements.", 
+            rules: { "E4": 15, "B3": 15, "P3": 25, "P6": 20, "P7": 20, "P8": 30, "B4": 15 } 
+        },
+        "S10": { 
+            title: "Green Energy Surge (Inflation Reduction Act)", 
+            desc: "Sweeping structural policy frameworks allocate deep subsidies and production tax incentives directly to clean infrastructure lines.", 
+            rules: { "E1": 10, "P7": 15, "F3": 65, "E15": 85, "E9": 25 } 
+        },
+        "S11": { 
+            title: "Banking Crisis (Regional Liquidity Run)", 
+            desc: "Sudden asset run panics trigger widespread capitalization fears and immediate preservation allocations into low-risk options.", 
+            rules: { "E4": -15, "B1": 15, "P1": 10, "P2": 10, "P5": 10, "E7": -60, "B3": -15, "B2": -15, "P6": -25, "B4": -30, "F2": -35 } 
+        },
+        "S12": { 
+            title: "Healthcare Boom (Medical Demand)", 
+            desc: "Heightened therapeutic focus and global procurement requirements drive massive scale performance inside secure defensive frameworks.", 
+            rules: { "E3": 45, "E5": -10, "E6": -10, "E11": -30, "P3": 10, "E14": 15, "E15": -65 } 
+        },
+        "S13": { 
+            title: "Consumer Spending Boom (Revenge Spending)", 
+            desc: "Easing restriction boundaries spark an aggressive surge across retail network lines, travel networks, and transactional streams.", 
+            rules: { "E2": 5, "E6": 15, "E10": 20, "E11": 25, "F2": 30, "B4": 15 } 
+        },
+        "S14": { 
+            title: "Energy Sector Collapse (Negative Crude)", 
+            desc: "Extreme drops in operational transport utility collide with inflexible warehouse constraints, temporarily breaking core commodities pricing.", 
+            rules: { "E5": 10, "E6": 10, "E9": 35, "E11": -25, "F1": 45, "B4": -30, "F3": -25 } 
+        }
     };
 
     const ACTION_DB_INFO = {
@@ -708,7 +773,7 @@
         document.getElementById("lobby-status-pill").style.backgroundColor = "var(--success-color)";
         document.getElementById("room-code-banner").innerText = `Room: ${lobbyRoomCode} (${playerUsername})`;
 
-        populateScenarioOptions(); // Load and restore visual selection items cleanly
+        populateScenarioOptions(); 
         showScreen("view-setup");
 
         rtdb.ref(`rooms/${lobbyRoomCode}/players/${playerUsername}`).update({
